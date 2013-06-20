@@ -1,0 +1,22 @@
+{
+  "author": "Frakture,Inc",
+  "name": "frakture-utility",
+  "description": "Frakture Utilities and extensions",
+  "keywords":["utility"],
+  "version": "0.1.0",
+  "homepage":"https://github.com/frakture/frakture-utility",
+  "repository" :
+             { "type" : "git"
+             , "url" : "https://github.com/frakture/frakture-utility.git"
+             },
+  "main": "./main",
+  "dependencies":{
+	  "hogan.js":"latest",
+	 "mongoskin":">=0.5.0",
+	 "async":">=0.2.8",
+	 "generic-pool":">=2.0.3",
+	 "mysql":">=2.0.0-alpha7"
+  },
+  "devDependencies":{
+  }
+}
