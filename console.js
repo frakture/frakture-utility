@@ -1,5 +1,6 @@
 var async=require("async"),
-optimist=require("optimist");
+optimist=require("optimist"),
+	prompt=require("prompt");
 /*
         Create a bot that uses a local account_id,and logs to the console
 */
@@ -38,8 +39,6 @@ exports.callback=function(err,d,progress){
 exports.makeRunnable=function(Bot,options){
         if (!process.env.FRAKTURE_ACCOUNT_ID) throw "FRAKTURE_ACCOUNT_ID environment variable is required";
         options=options ||{};
-        
-        var prompt=require("prompt");
         
         prompt.override = optimist.argv;
         
