@@ -1,8 +1,20 @@
-var hogan=require('hogan.js');
+var vm = require('vm');
 
 /*
 	Useful js functions
 */
+exports.toArray=function(obj){
+	if (Array.isArray(obj)) return obj;
+	if (typeof obj!='object') return [obj];
+	var r=[];
+	for (i in obj){
+		if (obj.hasOwnProperty(i)){
+			r.push(obj[i]);
+		}
+	}
+	return r;
+}
+
 
 //Takes an object, and returns back an array sorted by the value of the object
 exports.sortObject=function(obj) {
@@ -19,17 +31,6 @@ exports.sortObject=function(obj) {
     return arr; // returns array
 }
 
-exports.renderMustacheObject=function(templateObject, obj){
-	for (i in templateObject){
-		var c=templateObject[i];
-		if (typeof c=='string' && c.indexOf('{{')>=0){
-			templateObject[i]=hogan.compile(c).render(obj);
-		}else if (typeof c=='object'){
-			templateObject[i]=exports.renderMustacheObject(templateObject[i],obj);
-		}
-	}
-	return templateObject;
-}
 
 //Deep extend
 //Sourced from jQuery
@@ -124,3 +125,79 @@ exports.extend=function() {
       }
       return target;
     }
+    
+exports.safeEval=function(script,callback){
+	var sandbox={log:console.log};
+
+	script=script.toString();
+	try{
+		vm.runInNewContext(script, sandbox, 'custom_script');
+	}catch(e){
+		console.error("Calling error function from safeEval");
+		console.error(e);
+		return callback(e);
+	}
+	callback(null,sandbox);
+}
+
+exports.escapeRegExp= function(s) {
+    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+};
+
+
+exports.endsWith=function(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+/*
+	prepare content for shell execution
+*/
+exports.escapeShell = function(cmd) {
+  return '"'+cmd.replace(/(["\s'$`\\])/g,'\\$1')+'"';
+};
+
+/*
+	serializes a javascript object, including functions, and stringifies regular expressions
+*/
+function dateFunctionStringify(key,value){
+	return (typeof value==='function' || value instanceof RegExp)?value.toString():value
+}
+
+exports.serialize=function(obj){
+  return JSON.stringify(obj,dateFunctionStringify,4);
+}
+
+/*
+gets unique array elements
+*/
+exports.getUnique=function(arr){
+   var u = {}, a = [];
+   for(var i = 0, l = arr.length; i < l; ++i){
+      if(u.hasOwnProperty(arr[i])) {
+         continue;
+      }
+      a.push(arr[i]);
+      u[arr[i]] = 1;
+   }
+   return a;
+}
+
+var dateRegex=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
+function dateFunctionReviver(key, value) {
+    if (typeof value === 'string') {
+	    if (value && value.indexOf("function (")==0) return eval("("+value+")");
+        var a = dateRegex.exec(value);
+        if (a) {
+            return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
+                            +a[5], +a[6]));
+        }
+    }
+    return value;
+};
+
+/*
+	deserializes a javascript object, including functions and dates
+*/
+
+exports.deserialize=function(str){
+  return JSON.parse(str,dateFunctionReviver);
+}

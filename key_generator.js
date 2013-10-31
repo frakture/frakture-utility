@@ -10,3 +10,10 @@ exports.generateKey=function(opts){
 	var bytes=opts.bytes || 2048;
 	return crypto.createHash(method).update(crypto.randomBytes(bytes)).digest(encoding);
 }
+
+if (require.main === module) 
+{
+	console.log(exports.generateKey());
+ }
+
+

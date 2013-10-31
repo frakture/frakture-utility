@@ -1,5 +1,7 @@
 module.exports={
+	console:require("./console.js"),
 	crypt:require("./crypt.js"),
+	date:require("./date.js"),
 	file:require("./file.js"),
 	geo:require("./geo.js"),
 	html:require("./html.js"),
@@ -7,6 +9,6 @@ module.exports={
 	key_generator:require("./key_generator.js"),
 	mongo:require("./mongo.js"),
 	mysql:require("./mysql.js"),
-	permissions:require("./permissions.js"),
+	stream:require("./stream.js"),
 	validation:require("./validation.js"),
 }

@@ -16,12 +16,7 @@ var minReconnectDelay=500;
 var maxReconnectDelay=5*60*1000;
 var currentReconnectDelay=minReconnectDelay;
 
-exports.identity_db_config={host: 'localhost',user: 'frakture',password: 'frakture',database: 'frakture_id'};
-
-var dbs=[
-	{host: 'localhost',user: 'frakture',password: 'frakture',database: 'frakture2_0'},
-	{host: 'localhost',user: 'frakture',password: 'frakture',database: 'frakture2_1'}
-];
+var dbs=[];
 
 var createFunc=function(callback) {
 	var pool_index=this.pool_index;
@@ -110,6 +105,44 @@ exports.batchQuery=function(query,fields, eachQueryCallback, allCompleteCallback
 		});
 	}
 }
+
+/*
+	
+	options
+	type:
+	max
+	min
+	value_counts
+	max_length
+	min_length
+	
+*/
+exports.getType=function(options){
+	var a=options;
+	switch(a.type){
+			case 'integer':
+					if (a.max && a.min!==undefined && a.max<=127 && a.min>-127){ return "TINYINT"; break;}
+					if (a.max && a.min!==undefined && a.max<=2147483647 && a.min>-2147483647){ return "INT"; break;}
+					return  "BIGINT"; break;
+			case 'float':
+				return "FLOAT"; break;
+			case 'date':
+				return "DATETIME";break;
+			
+			case 'string':
+			default:
+				 if (a.value_counts){
+						 return "ENUM(\""+a.value_counts.map(function(v){return v.label}).join('","')+"\")";
+					}else if (a.max_length && a.max_length==a.min_length){
+						return "CHAR("+a.max_length+")";
+					}else if (a.max_length){
+						return "VARCHAR("+a.max_length+")";
+					}else{
+						return "TEXT";
+					}
+		}
+}
+
 /*
 
 	Run a series of queries in an array, back to back, and call the callback with the final result when complete
@@ -127,19 +160,25 @@ exports.batchQuery=function(query,fields, eachQueryCallback, allCompleteCallback
 	lastResults is an array of the results from the previous query.
 	
 	Parameters are:
-		conn -- db connection
 		queryList -- array of queries
-		callback -- callback to run when all queries are complete
+		callback(err,lastResult) -- callback to run when all queries are complete
 
 */
 
-exports.runQueryArray=function(conn,queryList,callback){
+exports.runQueryArray=function(queryList,callback,log){
+	if (!log) log=console.log;
+	var conn=mysql.createConnection(process.env.MYSQL_URI);
+	
 	var lastResult=null;
 	if (!Array.isArray(queryList)){
-		 throw new Error("queryList must be an array");
+		 return callback(new Error("queryList must be an array"));
 	}
 	
-			async.eachSeries(queryList,function(query,queryListCallback){
+	conn.connect(function(err){
+				if (err){return callback(err);}
+	
+		async.eachSeries(queryList,function(query,queryListCallback){
+				if (!query) return queryListCallback(new Error("Empty query"));
 				var q=null;
 				var parameters=[];
 				if (typeof query=='string'){
@@ -152,24 +191,32 @@ exports.runQueryArray=function(conn,queryList,callback){
 					}
 				}
 				
-				console.log(q+": Parameters="+JSON.stringify(parameters));
+				log("SQL: "+exports.getSQLString({sql:q,values:parameters}));
 				
 				conn.query(q, parameters, function(err,data){
 						if (err){
-							console.log(err);
-							if (err.toString().indexOf('ER_DUP_KEYNAME')>0){
-								//Totally okay
+							log(err);
+							if (err.toString().indexOf('ER_DUP_KEYNAME')>0 || err.toString().indexOf('ER_DUP_FIELDNAME')>0){
+								//Totally okay if columns already exist
 							}else{
-								throw err
+								return queryListCallback(err);
 							}
 						}
-						if (data) console.log(data);
+						if (q.toLowerCase().trim().indexOf('select')==0){
+							log("SQL RESULT: "+data.length+" rows");
+						}else{
+							log("SQL RESULT: "+JSON.stringify(data));
+						}
+						
 						lastResult=data;	
 						queryListCallback();
 					});	
-			},function(){
-				callback(lastResult);
+			},function(err){
+				if (conn) conn.destroy();
+				if (err) return callback(err);
+				callback(null,lastResult);
 			} );
+	});
 }
 
 
@@ -192,18 +239,8 @@ exports.getSQLString=function(o,timeZone){
 	  });
 };
 
+exports.escapeId=mysql.escapeId;
 
-
-
-
-
-
-/*
-exports.batchQuery("SELECT database()",[],function(err,data){
-	console.log("Retrieved data from ");
-	console.log(data);
-});
-*/
 
 
 
