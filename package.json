@@ -3,7 +3,7 @@
   "name": "frakture-utility",
   "description": "Frakture Utilities and extensions",
   "keywords":["utility"],
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage":"https://github.com/frakture/frakture-utility",
   "repository" :
              { "type" : "git"
