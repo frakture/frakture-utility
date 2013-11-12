@@ -11,8 +11,11 @@ for (i in common_mongo){exports[i]=common_mongo[i];}
 
 
 exports.getDB=function(){
+	if (!process.env.MONGO_URI){
+		throw new Error("MONGO_URI environment variable is required");
+	}
 	if (db==null){
-		db=require('mongoskin').db((process.env.MONGOLAB_URI || 'mongodb://localhost:27017/frakture'),
+		db=require('mongoskin').db((process.env.MONGO_URI),
 			{auto_reconnect:true,maxPoolSize:10,safe:true});
 	}
 	return db;

@@ -125,19 +125,41 @@ exports.extend=function() {
       }
       return target;
     }
-    
+
+/*
+	Safe eval takes either a string of operations to run on a sandbox, which is then returned.
+	
+	Alternatively, if passed an object (string that starts with '{') it will return the eval'd version of that string
+*/
 exports.safeEval=function(script,callback){
 	var sandbox={log:console.log};
 
 	script=script.toString();
+	
+	var isObject=false;
+	if (script.indexOf('{')==0){
+		isObject=true;
+		script="this.value=("+script+");";
+	}
+	var result=null;
 	try{
 		vm.runInNewContext(script, sandbox, 'custom_script');
 	}catch(e){
+		console.error("Error eval'ing "+script);
 		console.error("Calling error function from safeEval");
 		console.error(e);
+		if (!callback) throw e;
 		return callback(e);
 	}
-	callback(null,sandbox);
+	delete sandbox.log;
+	if (isObject) result=sandbox.value;
+	else result=sandbox;
+
+	if (callback){
+		callback(null,result);
+	}else{
+		return result;
+	}
 }
 
 exports.escapeRegExp= function(s) {
@@ -158,12 +180,12 @@ exports.escapeShell = function(cmd) {
 /*
 	serializes a javascript object, including functions, and stringifies regular expressions
 */
-function dateFunctionStringify(key,value){
-	return (typeof value==='function' || value instanceof RegExp)?value.toString():value
+function expandedStringify(key,value){
+	return (typeof value==='function' || value instanceof RegExp || (value && value.constructor && value.constructor.toString().indexOf('RegExp')>0))?value.toString():value
 }
 
 exports.serialize=function(obj){
-  return JSON.stringify(obj,dateFunctionStringify,4);
+  return JSON.stringify(obj,expandedStringify,4);
 }
 
 /*
