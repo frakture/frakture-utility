@@ -15,6 +15,7 @@ exports.getDB=function(){
 		throw new Error("MONGO_URI environment variable is required");
 	}
 	if (db==null){
+		console.log("Creating a new DB connection");
 		db=require('mongoskin').db((process.env.MONGO_URI),
 			{auto_reconnect:true,maxPoolSize:10,safe:true});
 	}

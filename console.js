@@ -76,7 +76,7 @@ exports.makeRunnable=function(Bot,options){
                 filter.account_id=account_id.toString();
                 console.log("Retrieving bots with "+JSON.stringify(filter));
                 
-                db.collection("bot").find(filter).toArray(function(err,bots){
+                db.collection("bot").find(filter).sort({_id:1}).toArray(function(err,bots){
                         if (bots.length==0) return "Could not find bots with these conditions";
                         console.log(bots.map(function(a,i){return "Bot "+i+". " +a.label+": "+a.path+" ("+a._id+")"}).join("\r\n"));
                         prompt.get({
@@ -117,7 +117,7 @@ exports.makeRunnable=function(Bot,options){
         function getAccounts(opts,callback){
                 if (opts.accounts===false) return callback(null,[{name:"All",_id:""}]);
                 
-                db.collection("account").find().toArray(function(err,accounts){
+                db.collection("account").find().sort({_id:1}).toArray(function(err,accounts){
                 
                         console.log(accounts.map(function(a,i){return i+". " +a.name+": "+a._id}).join("\r\n"));
         
@@ -143,10 +143,11 @@ exports.makeRunnable=function(Bot,options){
                 var methodOpts={type:'string',description:"Method",required:true,enum:methods.map(function(d){return d.name})};
                 methodOpts.default=methods[methods.length-1].name;
                 
-                console.log("Available methods:"+methods.map(function(m){return m.name;}).join(","));
+                
                 
                 getAccounts(options,function(err,accountList){
                 
+						console.log("Available methods:"+methods.map(function(m){return m.name;}).join(","));                
                         prompt.get({
                         properties:{
                                 method:methodOpts
@@ -192,9 +193,11 @@ exports.makeRunnable=function(Bot,options){
                                                                 });
                                                         });
                                                 },function(err){
+                                                		
                                                         require("./main.js").mongo.getDB().close();
-                                                        if (err){console.error("**** There was an error during command line operation *****");
-                                                         console.error(err);
+                                                        if (err){
+                                                        	 console.error("**** There was an error during command line operation *****");
+                                                        	 console.error(err);
                                                         }
                                                         console.log("\nFinished.");
                                                 });
