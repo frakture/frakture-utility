@@ -37,7 +37,7 @@ exports.callback=function(err,d,progress){
         Also allows for command line options
 */
 exports.makeRunnable=function(Bot,options){
-        if (!process.env.FRAKTURE_ACCOUNT_ID) throw "FRAKTURE_ACCOUNT_ID environment variable is required";
+
         options=options ||{};
         
         prompt.override = optimist.argv;
