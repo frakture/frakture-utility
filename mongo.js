@@ -31,8 +31,10 @@ exports.getObjectId=exports.getObjectID;
 exports.convertOid=function(o){
 	if (typeof o!='object') return o;
 	for (i in o){
-		if (typeof o[i]=='object' && o[i]["$oid"]){ o[i]=mongoskin.ObjectID.createFromHexString(o[i]["$oid"]);
-		}else{ o[i]=exports.convertOid(o[i]);}
+		if (!o[i]){
+		}else if (typeof o[i]=='object' && o[i]["$oid"]){ o[i]=mongoskin.ObjectID.createFromHexString(o[i]["$oid"]);
+		}else{ 
+		o[i]=exports.convertOid(o[i]);}
 	}
 	return o;
 }

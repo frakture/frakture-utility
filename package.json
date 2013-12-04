@@ -17,7 +17,7 @@
     "mongoskin": ">=0.5.0",
     "async": ">=0.2.8",
     "generic-pool": ">=2.0.3",
-    "mysql": ">=2.0.0-alpha7",
+    "mysql": "2.0.0-alpha7",
     "mkdirp": "latest",
     "optimist": "latest",
     "prompt": "latest"
