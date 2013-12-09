@@ -216,6 +216,23 @@ function dateFunctionReviver(key, value) {
     return value;
 };
 
+var mongoc=require("mongoc");
+
+/* Extensions to Arrays to allow for find and findOne methods, leveraging mongoc */
+exports.addArrayFindProtoype=function(){
+	Array.prototype.findOne=function(object){
+		var func=mongoc(object);
+		for (i=0; i<this.length; i++){if (func(this[i])) return this[i];}
+		return null;
+	}
+
+	Array.prototype.find=function(object){
+		return this.filter(mongoc(object));
+	}
+}
+
+
+
 /*
 	deserializes a javascript object, including functions and dates
 */

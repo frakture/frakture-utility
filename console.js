@@ -131,6 +131,7 @@ exports.makeRunnable=function(Bot,options){
                                           }
                                 }
                         },function(err,result){
+	                        	if (err) return callback(err);
                                 if (result.account_index=='*') result.account_index=accounts.map(function(d,i){return i}).join(",");
                                 var indexes=result.account_index.split(",").map(function(d){return Number(d)});
                                 var accountList=accounts.filter(function(d,i){return indexes.indexOf(i)>=0});
