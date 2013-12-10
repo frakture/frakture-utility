@@ -19,7 +19,7 @@
     "generic-pool": ">=2.0.3",
     "mysql": "2.0.0-alpha7",
     "mkdirp": ">=0.3.5",
-    "mongoc": "0.1.0",
+    "sift": ">=0.0.12",
     "optimist": ">=0.6.0",
     "prompt": ">=0.2.11"
   },

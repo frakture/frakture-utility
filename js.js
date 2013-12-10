@@ -216,19 +216,20 @@ function dateFunctionReviver(key, value) {
     return value;
 };
 
-var mongoc=require("mongoc");
+var sift=require("sift");
 
 /* Extensions to Arrays to allow for find and findOne methods, leveraging mongoc */
 exports.addArrayFindProtoype=function(){
-	Array.prototype.findOne=function(object){
-		var func=mongoc(object);
-		for (i=0; i<this.length; i++){if (func(this[i])) return this[i];}
+	Object.defineProperty(Array.prototype, "findOne", {value:function(object){
+		var func=sift(object);
+		for (i=0; i<this.length; i++){if (func.test(this[i])) return this[i];}
 		return null;
-	}
-
-	Array.prototype.find=function(object){
-		return this.filter(mongoc(object));
-	}
+	},enumerable:false
+	});
+	
+	Object.defineProperty(Array.prototype, "find", {value:function(object){
+		return sift(object,this);
+	},enumerable:false});
 }
 
 
