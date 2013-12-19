@@ -1,5 +1,4 @@
 var vm = require('vm');
-
 /*
 	Useful js functions
 */
@@ -145,11 +144,16 @@ exports.safeEval=function(script,callback){
 	try{
 		vm.runInNewContext(script, sandbox, 'custom_script');
 	}catch(e){
-		console.error("Error eval'ing "+script);
-		console.error("Calling error function from safeEval");
+		//console.error("Error eval'ing "+script);
 		console.error(e);
-		if (!callback) throw e;
-		return callback(e);
+		
+		//The error SHOULD be of type error, but it's not.  Create a new error, and add the stack and message
+		var correctedError=new Error();
+		correctedError.stack=e.stack;
+		correctedError.message=e.message;
+		
+		if (!callback) throw correctedError;
+		return callback(correctedError);
 	}
 	delete sandbox.log;
 	if (isObject) result=sandbox.value;
@@ -230,6 +234,30 @@ exports.addArrayFindProtoype=function(){
 	Object.defineProperty(Array.prototype, "find", {value:function(object){
 		return sift(object,this);
 	},enumerable:false});
+}
+
+
+exports.base58 = require('encdec').create();
+
+// base32 encoding
+exports.base32 = require('encdec').create('abcdefghijklmnopqrstuvwxyz234567');
+
+//to handle longer strings, we can split numbers
+exports.base58toN=function(n,s){
+	var split=Math.floor(s.length/2);
+	var a=base58.decode(s.substring(0,split)).toString(n);
+	var b=base58.decode(s.substring(split)).toString(n);
+	return a+b;
+}
+
+exports.baseNto58=function(n,s){
+	if (!s) return "-1";
+	if (typeof s=='number') s=Number(s).toString();
+	if (typeof s!='string') s=s.toString();
+	var split=Math.floor(s.length/2);
+	var a=base58.encode(parseInt(s.substring(0,split),n));
+	var b=base58.encode(parseInt(s.substring(split),n));
+	return a+b;
 }
 
 

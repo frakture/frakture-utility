@@ -66,7 +66,6 @@ exports.makeRunnable=function(Bot,options){
         function getBotConfig(botFilter,account_id,callback){
                 //Check if we need some bot data for permissions, etc
                 if (!botFilter){
-                        console.log("No specific bot instance necessary, continuing");
                         return callback(null,{});
                 }
 
@@ -148,7 +147,7 @@ exports.makeRunnable=function(Bot,options){
                 
                 getAccounts(options,function(err,accountList){
                 
-						console.log("Available methods:"+methods.map(function(m){return m.name;}).join(","));                
+						if (!optimist.argv.method) console.log("Available methods:"+methods.map(function(m){return m.name;}).join(","));                
                         prompt.get({
                         properties:{
                                 method:methodOpts
@@ -174,7 +173,7 @@ exports.makeRunnable=function(Bot,options){
                                                 },function(err,options){
                                                         if (err) return callback(err);
                                                         async.eachSeries(accountList,function(account,accountCallback){
-                                                        console.log("Applying to "+account.name);
+                                                        if (account.name!='All') console.log("Applying to "+account.name);
                                                         
                                                         getBotConfig(method.metadata.bot,account._id,function(err,botConfig){
                                                                 if (err) throw err;
@@ -189,18 +188,17 @@ exports.makeRunnable=function(Bot,options){
                                                                 bot[methodName](options,function(err,d,progress){
                                                                                 if (err) return accountCallback(err);
                                                                                 if (progress){return console.log(progress);}
-                                                                                console.log(JSON.stringify(d,null,4));
+                                                                                if (typeof d=='object') console.log(JSON.stringify(d,null,4));
+                                                                                else console.log(d);
                                                                                 accountCallback();
                                                                 });
                                                         });
                                                 },function(err){
-                                                		
                                                         require("./main.js").mongo.getDB().close();
                                                         if (err){
                                                         	 console.error("**** There was an error during command line operation *****");
                                                         	 console.error(err);
                                                         }
-                                                        console.log("\nFinished.");
                                                 });
                                         });
                                 });

@@ -13,6 +13,7 @@
   },
   "main": "./main",
   "dependencies": {
+	"encdec": "latest",
     "hogan.js": ">=2.0.0",
     "mongoskin": ">=0.5.0",
     "async": ">=0.2.8",

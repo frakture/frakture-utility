@@ -15,7 +15,6 @@ exports.getDB=function(){
 		throw new Error("MONGO_URI environment variable is required");
 	}
 	if (db==null){
-		console.log("Creating a new DB connection");
 		db=require('mongoskin').db((process.env.MONGO_URI),
 			{auto_reconnect:true,maxPoolSize:10,safe:true});
 	}
@@ -58,7 +57,7 @@ exports.safeSet=function(update){
 
 
 //This function inserts a new document with an incremental key
-exports.insertIncrementalDocument=function(doc, targetCollection,callback) {
+exports.insertIncrementalDocument=function(doc, targetCollection,callback,killCounter) {
         targetCollection.find( {}, { _id: 1 }).sort({ _id: -1}).limit(1).toArray(function(err,arr){
         	if (err) throw err;
         	if (arr[0] && Number(arr[0]._id)!=arr[0]._id) return  callback(new Error("Collection '"+targetCollection.collectionName+"' has non-numerical entries.  Cannot insert an incremental document."));
@@ -66,10 +65,18 @@ exports.insertIncrementalDocument=function(doc, targetCollection,callback) {
 			doc._id = seq;
 
 			targetCollection.insert(doc,{safe:true},function(err,results){
+				
 				if( err && err.code ) {
 					if( err.code == 11000 /* dup key */ ){
+						
+						if (killCounter>10){
+							console.error("Error inserting a "+targetCollection.collectionName+", killCounter exceeded 10.  Last error:");
+							console.error(err);
+							return callback(err);
+						}
+						killCounter=(killCounter || 0)+1;
 						//try again
-						exports.insertIncrementalDocument(doc,targetCollection,callback);
+						exports.insertIncrementalDocument(doc,targetCollection,callback,killCounter);
 						return;
 					}else{
 						return callback(new Error("unexpected error inserting data: " + JSON.stringify( err )));
@@ -103,7 +110,7 @@ exports.dereference=function(_objects,callback){
 			if (parseInt(d)==d) return parseInt(d);
 			if (typeof d=='string') return exports.getObjectId(d);
 		})}};
-		console.log(o);
+		
 		db.collection(o).find(q).toArray(function(err,objects){
 			if (err) return oCallback(err);
 			objects.forEach(function(obj){
