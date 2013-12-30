@@ -42,7 +42,7 @@ exports.makeRunnable=function(Bot,options){
         
         prompt.override = optimist.argv;
         
-        var db=require("./main.js").mongo.getDB();
+        var db=null;
         
         prompt.start();
         var methods=[];
@@ -74,7 +74,7 @@ exports.makeRunnable=function(Bot,options){
 
                 filter.account_id=account_id.toString();
                 console.log("Retrieving bots with "+JSON.stringify(filter));
-                
+                if (db==null) db=require("./main.js").mongo.getDB();
                 db.collection("bot").find(filter).sort({_id:1}).toArray(function(err,bots){
                         if (bots.length==0) return "Could not find bots with these conditions";
                         console.log(bots.map(function(a,i){return "Bot "+i+". " +a.label+": "+a.path+" ("+a._id+")"}).join("\r\n"));
@@ -116,7 +116,12 @@ exports.makeRunnable=function(Bot,options){
         function getAccounts(opts,callback){
                 if (opts.accounts===false) return callback(null,[{name:"All",_id:""}]);
                 
+                 if (db==null) db=require("./main.js").mongo.getDB();
                 db.collection("account").find().sort({_id:1}).toArray(function(err,accounts){
+                
+		                if (optimist.argv.account_id){
+		                	 return callback(null,accounts.filter(function(d){return d._id.toString()==optimist.argv.account_id}));
+		                }
                 
                         console.log(accounts.map(function(a,i){return i+". " +a.name+": "+a._id}).join("\r\n"));
         
@@ -144,6 +149,18 @@ exports.makeRunnable=function(Bot,options){
                 methodOpts.default=methods[methods.length-1].name;
                 
                 
+                
+                if (optimist.argv.method){
+	                var targetMethod=methods.filter(function(m){return m.name==optimist.argv.method});
+	                if (targetMethod && targetMethod[0] && targetMethod[0].metadata){
+	                	if (targetMethod[0].metadata.accounts===false){
+		                	options.accounts=false;
+		                }
+		                if (targetMethod[0].metadata.confirm===false){
+			                options.confirm=false;
+		                }
+	                }
+                }
                 
                 getAccounts(options,function(err,accountList){
                 
