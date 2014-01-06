@@ -135,6 +135,7 @@ function unique(value, index, self) {
 }
 
 exports.extendDistinct=function(a,b){
+	if (!a) a={};
 	for (i in b){
 		if (!a[i]){a[i]=b[i]; continue;}
 		if (!Array.isArray(a[i])) a[i]=[a[i]];
