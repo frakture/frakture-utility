@@ -1,6 +1,7 @@
 var async=require("async"),
 optimist=require("optimist"),
-	prompt=require("prompt");
+	prompt=require("prompt"),
+	js=require("./js.js");
 /*
         Create a bot that uses a local account_id,and logs to the console
 */
@@ -73,10 +74,11 @@ exports.makeRunnable=function(Bot,options){
                 if (typeof botFilter=='object') filter=botFilter;
 
                 filter.account_id=account_id.toString();
-                console.log("Retrieving bots with "+JSON.stringify(filter));
+                console.log("Retrieving bots with "+js.serialize(filter));
                 if (db==null) db=require("./main.js").mongo.getDB();
                 db.collection("bot").find(filter).sort({_id:1}).toArray(function(err,bots){
-                        if (bots.length==0) return "Could not find bots with these conditions";
+	                	if (err) return callback(err);
+                        if (bots.length==0) return callback("Could not find any bots with these conditions");
                         console.log(bots.map(function(a,i){return "Bot "+i+". " +a.label+": "+a.path+" ("+a._id+")"}).join("\r\n"));
                         prompt.get({
                                 properties:{
@@ -117,6 +119,10 @@ exports.makeRunnable=function(Bot,options){
                 if (opts.accounts===false) return callback(null,[{name:"All",_id:""}]);
                 
                  if (db==null) db=require("./main.js").mongo.getDB();
+                 db.on("error",function(err){
+                 	console.error(err.stack || err);
+                 	process.exit();
+                 });
                 db.collection("account").find().sort({_id:1}).toArray(function(err,accounts){
                 
 		                if (optimist.argv.account_id){

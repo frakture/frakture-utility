@@ -124,6 +124,26 @@ exports.extend=function() {
       }
       return target;
     }
+    
+    
+    
+/* 
+	extends two objects such that the result contains arrays of unique objects, or single values
+*/
+function unique(value, index, self) { 
+    return self.indexOf(value) === index;
+}
+
+exports.extendDistinct=function(a,b){
+	for (i in b){
+		if (!a[i]){a[i]=b[i]; continue;}
+		if (!Array.isArray(a[i])) a[i]=[a[i]];
+		a[i]=a[i].concat(b[i]).filter(unique);
+		if (a[i].length==1) a[i]=a[i][0];
+	}
+}
+
+
 
 /*
 	Safe eval takes either a string of operations to run on a sandbox, which is then returned.
