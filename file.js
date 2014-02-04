@@ -10,7 +10,7 @@ exports.validateFilename=function(s){
 		return true;
 	}
 	
-	throw "Invalid filename:"+s;
+	throw "Invalid filename:'"+s+"'";
 }
 
 /*

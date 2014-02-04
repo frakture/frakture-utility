@@ -152,6 +152,11 @@ exports.extendDistinct=function(a,b){
 	Alternatively, if passed an object (string that starts with '{') it will return the eval'd version of that string
 */
 exports.safeEval=function(script,callback){
+	if (!script){
+		if (!callback) throw "No content to eval";
+		return callback("No content to eval");
+	}
+	
 	var sandbox={log:console.log};
 
 	script=script.toString();
@@ -245,6 +250,7 @@ var sift=require("sift");
 
 /* Extensions to Arrays to allow for find and findOne methods, leveraging mongoc */
 exports.addArrayFindProtoype=function(){
+	if (Array.prototype.findOne) return;
 	Object.defineProperty(Array.prototype, "findOne", {value:function(object){
 		var func=sift(object);
 		for (i=0; i<this.length; i++){if (func.test(this[i])) return this[i];}
