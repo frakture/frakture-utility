@@ -94,6 +94,7 @@ exports.makeRunnable=function(Bot,options){
                                         if (err) return callback(err);
                                         var bot=bots[parseInt(result.bot_index)];
                                         if (!bot) return callback("Could not find bot "+result.bot_index);
+                                        console.log("Using bot "+bot._id);
                                         
                                         if (bot.auth){
                                                  bot.auth=JSON.parse(require("./main.js").crypt.decrypt(bot.auth));

@@ -15,7 +15,7 @@
   "dependencies": {
     "encdec": "latest",
     "hogan.js": ">=2.0.0",
-    "mongoskin": ">=0.5.0",
+    "mongoskin": "0.5.0",
     "async": ">=0.2.8",
     "generic-pool": ">=2.0.3",
     "mysql": "2.0.0-alpha7",
