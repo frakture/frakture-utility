@@ -196,6 +196,11 @@ exports.makeRunnable=function(Bot,options){
                                                 properties:method.metadata.options
                                                 },function(err,options){
                                                         if (err) return callback(err);
+                                                        //handle boolean values truthiness
+                                                        for (i in options){
+                                                        	if (options[i]=='false') options[i]=false;
+                                                        }
+                                                        
                                                         async.eachSeries(accountList,function(account,accountCallback){
                                                         if (account.name!='All') console.log("Applying to "+account.name);
                                                         

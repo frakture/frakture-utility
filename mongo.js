@@ -87,12 +87,25 @@ exports.insertIncrementalDocument=function(doc, targetCollection,callback,killCo
 		});
 }
 
-//Take an object or array of objects, generally from a query, goes through each one, looks for any <object>_id field, assumes it needs to be dereferenced, and
-// appends an object of name <object>
-exports.dereference=function(_objects,callback){
+/*
+	Take an object or array of objects, generally from a query, goes through each one, looks for any <object>_id field, 
+	//assumes it needs to be dereferenced, and
+	// appends an object of name <object>
+	Also supports account_id confirmation by default, if the first object has an account_id
+	
+	opts:{
+		no_account_id:default false
+	}
+*/
+exports.dereference=function(_objects,opts,callback){
 	if (!_objects) return callback(null,null);
+	opts=opts||{};
+	if (typeof opts=='function'){ callback=opts; opts={};};
+	
 	var objects=_objects;
 	if (!Array.isArray(_objects)) objects=[_objects];
+	
+	var account_id=(objects[0]||{}).account_id;
 	var id_map={};
 	objects.forEach(function(object){
 		for (i in object){
@@ -110,6 +123,13 @@ exports.dereference=function(_objects,callback){
 			if (parseInt(d)==d) return parseInt(d);
 			if (typeof d=='string') return exports.getObjectId(d);
 		})}};
+		
+		//Makes sure to filter by account_id, so you can't create an arbitrary object_id and get data about it
+		if (account_id && !opts.no_account_id){
+			if (o=='account'){}else{
+			  q.account_id=account_id;
+			}
+		}
 		
 		db.collection(o).find(q).toArray(function(err,objects){
 			if (err) return oCallback(err);
