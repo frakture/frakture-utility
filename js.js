@@ -142,6 +142,7 @@ exports.extendDistinct=function(a,b){
 		a[i]=a[i].concat(b[i]).filter(unique);
 		if (a[i].length==1) a[i]=a[i][0];
 	}
+	return a;
 }
 
 
