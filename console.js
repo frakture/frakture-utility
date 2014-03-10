@@ -71,7 +71,10 @@ exports.makeRunnable=function(Bot,options){
                 }
 
                 var filter={};
-                if (typeof botFilter=='object') filter=botFilter;
+                if (botFilter===true){
+                	if (!Bot.bot_path) throw "Bot.bot_path is required for this particular method";
+                	filter={path:new RegExp(Bot.bot_path)}
+                }else if (typeof botFilter=='object') filter=botFilter;
 
                 filter.account_id=account_id.toString();
                 console.log("Retrieving bots with "+js.serialize(filter));

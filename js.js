@@ -250,7 +250,7 @@ function dateFunctionReviver(key, value) {
 var sift=require("sift");
 
 /* Extensions to Arrays to allow for find and findOne methods, leveraging mongoc */
-exports.addArrayFindProtoype=function(){
+exports.addArrayFindPrototype=function(){
 	if (Array.prototype.findOne) return;
 	Object.defineProperty(Array.prototype, "findOne", {value:function(object){
 		var func=sift(object);
@@ -261,6 +261,10 @@ exports.addArrayFindProtoype=function(){
 	
 	Object.defineProperty(Array.prototype, "find", {value:function(object){
 		return sift(object,this);
+	},enumerable:false});
+	/* Provides a distinct set based on the string value */
+	Object.defineProperty(Array.prototype, "distinct", {value:function(){
+		return exports.getUnique(this);
 	},enumerable:false});
 }
 
