@@ -197,6 +197,10 @@ exports.escapeRegExp= function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
 };
 
+exports.replaceAll=function(find, replace, str) {
+  return str.replace(new RegExp(exports.escapeRegExp(find), 'g'), replace);
+}
+
 
 exports.endsWith=function(str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
