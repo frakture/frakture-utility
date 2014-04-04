@@ -212,6 +212,54 @@ exports.escapeShell = function(cmd) {
   return '"'+cmd.replace(/(["\s'$`\\])/g,'\\$1')+'"';
 };
 
+
+
+/*
+	Compression function that removes all x===0 keys
+	//Ignores keys in the ignoreArray
+*/
+exports.dezero = function(o,ignore) {
+	if (typeof o=='object'){
+		ignore=ignore || [];
+		for (i in o){
+			if (o[i]===0 &&!Array.isArray(o)
+				&& ignore.indexOf(i)<0)  delete o[i];
+					
+			exports.dezero(o[i],ignore);
+		}
+	}
+	return o;
+};
+
+
+
+
+/*
+	Useful function for parsing yes/no/true/false values and strings.
+	Returns true for "y"/"yes"/"Yes"/"true"/"t"/"True"/true/non-zero Number/Object	
+	and false for everything else
+*/
+exports.bool=function (x){
+	if (typeof x!='string') return !!x;
+	var y=(x||"").toLowerCase();
+	return !!(y.indexOf('y')+1) || !!(y.indexOf('t')+1)
+}
+
+
+
+
+exports.zeroPad=function(num, numZeros) {
+	var n = Math.abs(num);
+	var zeros = Math.max(0, numZeros - Math.floor(n).toString().length );
+	var zeroString = Math.pow(10,zeros).toString().substr(1);
+	if( num < 0 ) {
+		zeroString = '-' + zeroString;
+	}
+
+	return zeroString+n;
+}
+
+
 /*
 	serializes a javascript object, including functions, and stringifies regular expressions
 */
