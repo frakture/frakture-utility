@@ -215,14 +215,19 @@ exports.makeRunnable=function(Bot,options){
                                                                 }
                                                                 
                                                                 bot.log=console.log;
+                                                                bot.progress=function(p){console.log(p);}
+                                                                
                                                                 bot.account_id=account._id.toString();
                                                         
                                                                 bot[methodName](options,function(err,d,progress){
-                                                                                if (err) return accountCallback(err);
-                                                                                if (progress){return console.log(progress);}
-                                                                                if (typeof d=='object') console.log(JSON.stringify(d,null,4));
-                                                                                else console.log(d);
-                                                                                accountCallback();
+																		if (err) return accountCallback(err);
+																		if (progress){
+																			console.error("*** WARNING! PROGRESS CALLBACKS ARE DEPRECATED *** ");
+																			return console.log(progress);
+																		}
+																		if (typeof d=='object') console.log(JSON.stringify(d,null,4));
+																		else console.log(d);
+																		accountCallback();
                                                                 });
                                                         });
                                                 },function(err){

@@ -261,14 +261,30 @@ exports.zeroPad=function(num, numZeros) {
 
 
 /*
-	serializes a javascript object, including functions, and stringifies regular expressions
+	serializes a javascript object, including functions, and stringifies regular expressions.  Also includes protections for
+	stringifying endless loops
+	
 */
-function expandedStringify(key,value){
-	return (typeof value==='function' || value instanceof RegExp || (value && value.constructor && value.constructor.toString().indexOf('RegExp')>0))?value.toString():value
-}
+
 
 exports.serialize=function(obj){
-  return JSON.stringify(obj,expandedStringify,4);
+var cache = [];
+
+  var s=JSON.stringify(obj,function(key, value) {
+    if (typeof value === 'object' && value !== null) {
+        if (cache.indexOf(value) !== -1) {
+            // Circular reference found, discard key
+            console.error("Circular reference found for key "+key);
+            return "[Circular]";
+        }
+        // Store value in our collection
+        cache.push(value);
+    }
+      return (typeof value==='function' || value instanceof RegExp || (value && value.constructor && value.constructor.toString().indexOf('RegExp')>0))?value.toString():value
+	},4);
+  cache = null; // Enable garbage collection
+  
+  return s;
 }
 
 /*

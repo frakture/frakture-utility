@@ -38,6 +38,22 @@ exports.convertOid=function(o){
 	return o;
 }
 
+/* Converts a string date into a date object */
+exports.convertDate=function(o){
+	if (typeof o!='object') return o;
+	for (i in o){
+		if (!o[i]){
+		}else if (typeof o[i]=='object' && o[i]["$date"]){ o[i]=new Date(o[i]["$date"]);
+		}else{ 
+			o[i]=exports.convertDate(o[i]);
+		}
+	}
+	return o;
+}
+
+
+
+
 //Create a suitable '$set' object that doesn't clobber sub objects
 //Currently only goes 1 level deep
 exports.safeSet=function(update){
@@ -109,6 +125,7 @@ exports.dereference=function(_objects,opts,callback){
 	var id_map={};
 	objects.forEach(function(object){
 		for (i in object){
+			if (!object[i]) continue;
 			if (i=='_id' || !js.endsWith(i,"_id")) continue;
 			var o=i.slice(0,-3);
 
@@ -142,6 +159,7 @@ exports.dereference=function(_objects,opts,callback){
 		if (err) return callback(err);
 		objects.forEach(function(object){
 			for (i in object){
+				if (!object[i]) continue;
 				if (i=='_id' || !js.endsWith(i,"_id")) continue;
 				var o=i.slice(0,-3);
 				object[o]=id_map[o][object[i].toString()] ||{};
