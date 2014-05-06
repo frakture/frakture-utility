@@ -19,10 +19,9 @@ exports.getBot=function(path){
         Generic callback function for testing
 */
 
-exports.callback=function(err,d,progress){
+exports.callback=function(err,d){
         require("./main.js").mongo.getDB().close();
         if (err){console.error("**** ERROR *****"); console.error(err);}
-        if (progress){return console.log(progress);}
         console.log(JSON.stringify(d,null,4));
         console.log("\nFinished.");
 }
@@ -216,6 +215,7 @@ exports.makeRunnable=function(Bot,options){
                                                                 
                                                                 bot.log=console.log;
                                                                 bot.progress=function(p){console.log(p);}
+                                                                bot.warn=bot.progress;
                                                                 
                                                                 bot.account_id=account._id.toString();
                                                         

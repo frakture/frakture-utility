@@ -197,6 +197,26 @@ exports.escapeRegExp= function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
 };
 
+exports.parseRegExp=function(o){
+	switch(typeof o){
+		case 'object':
+			for (i in o){
+				o[i]=exports.parseRegExp(o[i]);
+			}
+			return o;
+			
+		case 'string':
+			if (o.indexOf('/')==0 && o.lastIndexOf('/')>0){
+				var r=o.slice(1,o.lastIndexOf('/'));
+				var g=o.slice(o.lastIndexOf('/')+1);
+				var re=new RegExp(r,g);
+				return re;
+			}
+			
+		default: return o;
+	}
+}
+
 exports.replaceAll=function(find, replace, str) {
   return str.replace(new RegExp(exports.escapeRegExp(find), 'g'), replace);
 }
