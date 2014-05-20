@@ -132,7 +132,7 @@ exports.getType=function(options){
 			case 'string':
 			default:
 				 if (a.value_counts){
-						 return "ENUM(\""+a.value_counts.map(function(v){return v.label}).join('","')+"\")";
+						 return "ENUM('"+a.value_counts.map(function(v){return v.label.replace(/'/g,"''")}).join("','")+"')";
 					}else if (a.max_length && a.max_length==a.min_length){
 						return "CHAR("+a.max_length+")";
 					}else if (a.max_length){

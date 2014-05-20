@@ -71,7 +71,7 @@ exports.safeSet=function(update){
 	return {$set:s};
 }
 
-
+/*
 //This function inserts a new document with an incremental key
 exports.insertIncrementalDocument=function(doc, targetCollection,callback,killCounter) {
         targetCollection.find( {}, { _id: 1 }).sort({ _id: -1}).limit(1).toArray(function(err,arr){
@@ -83,7 +83,7 @@ exports.insertIncrementalDocument=function(doc, targetCollection,callback,killCo
 			targetCollection.insert(doc,{safe:true},function(err,results){
 				
 				if( err && err.code ) {
-					if( err.code == 11000 /* dup key */ ){
+					if( err.code == 11000  ){
 						
 						if (killCounter>10){
 							console.error("Error inserting a "+targetCollection.collectionName+", killCounter exceeded 10.  Last error:");
@@ -102,6 +102,45 @@ exports.insertIncrementalDocument=function(doc, targetCollection,callback,killCo
 			});
 		});
 }
+*/
+
+exports.insertIncrementalDocument=function(doc,targetCollection,callback,killCounter){
+	if (doc._id) return callback("document already has an _id:"+doc._id+", cannot insert");
+	if (typeof targetCollection=='string') targetCollection=db.collection(targetCollection);
+	
+	var name= targetCollection.collectionName;
+   var ret = db.collection("counters").findAndModify({ _id:name },{},{ $inc: { seq: 1 } },{new: true}
+	   ,function(err,d){
+			if (err) return callback(err);
+			if (!d){
+				console.log("No sequence named "+name);
+				if (killCounter>10){
+					console.error("Error inserting a "+targetCollection.collectionName+", killCounter exceeded 10.  Last error:");
+					console.error(err);
+					return callback(err);
+				}
+				killCounter=(killCounter || 0)+1;
+				targetCollection.find({},{_id:1}).sort({_id:-1}).limit(1).toArray(function(err,i){
+					if (err) return callback(err);
+					var seq=0;
+					if (i && i.length>0) seq=i[0]._id;
+					if (typeof seq!='number') return callback("Error! Non number "+seq+" in collection "+name);
+					db.collection("counters").save({_id:name,seq: seq},{safe:true},function(err){
+						exports.insertIncrementalDocument(doc,targetCollection,callback,killCounter);
+					});
+				});
+				return;
+			}
+		
+			doc._id=d.seq;
+			targetCollection.save(doc,{safe:true},function(err){
+				if (err) return callback(err);
+				return callback(null,doc);
+			});
+	   });
+}
+
+
 
 /*
 	Take an object or array of objects, generally from a query, goes through each one, looks for any <object>_id field, 
