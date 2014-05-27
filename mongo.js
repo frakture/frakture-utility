@@ -61,7 +61,7 @@ exports.safeSet=function(update){
 	delete s._id;
 	
 	for (i in s){
-		if (typeof s[i]=='object'){
+		if (!Array.isArray(s[i]) && typeof s[i]=='object'){
 			for (j in s[i]){
 				s[i+"."+j]=s[i][j];
 			}
