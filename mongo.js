@@ -140,7 +140,48 @@ exports.insertIncrementalDocument=function(doc,targetCollection,callback,killCou
 	   });
 }
 
-
+//Unsets invalid <field>_id from source collection
+exports.trimLeaves=function(options,callback){
+	if (typeof options.source!='string') return callback("source must be a valid string");
+	var source=db.collection(options.source);
+	var target=db.collection(options.target);
+	var field=options.field;
+	if (!field) return callback("field is required");
+	
+	var last=0;
+	var counter=0;
+	var fields={_id:1};
+	fields[field]=1;
+	function trim(cb){
+		var q={};
+		if (last) q={_id:{$gt:last}};
+		q[field]={$exists:true}
+		
+		source.find(q,fields).sort({_id:1}).limit(1000).toArray(function(e,arr){
+			if (e) return cb(e);
+			if (arr.length==0){last=null; return cb();}
+			
+			last=arr[arr.length-1]._id;
+			
+			var ids=arr.map(function(d){return d[field]});
+			target.find({_id:{$in:ids}},{_id:1}).toArray(function(e,targets){
+				var existingTargets=targets.map(function(d){return d._id});
+				var missing=arr.filter(function(d){return (existingTargets.indexOf(d[field])>=0)?false:true}).map(function(d){return d._id});
+				
+				if (missing.length==0) return cb();
+				counter+=missing.length;
+				var unset={$unset:{}};
+				unset.$unset[field]=1;
+				
+				source.update({_id:{$in:missing}},unset,{multi:true},cb);
+			});
+		});
+	}
+	async.doWhilst(trim,function(){return !!last},function(e){
+		if (e) return callback(e);
+		else return callback(null,{updated:counter});
+	});
+}
 
 /*
 	Take an object or array of objects, generally from a query, goes through each one, looks for any <object>_id field, 
