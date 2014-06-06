@@ -1,7 +1,8 @@
 var async=require("async"),
 optimist=require("optimist"),
 	prompt=require("prompt"),
-	js=require("./js.js");
+	js=require("./js.js"),
+	util=require("util");
 /*
         Create a bot that uses a local account_id,and logs to the console
 */
@@ -234,7 +235,7 @@ exports.makeRunnable=function(Bot,options){
                                                         require("./main.js").mongo.getDB().close();
                                                         if (err){
                                                         	 console.error("**** There was an error during command line operation *****");
-                                                        	 console.error(err);
+                                                        	 console.error(util.inspect(err));
                                                         }
                                                 });
                                         });

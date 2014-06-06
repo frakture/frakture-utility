@@ -294,7 +294,7 @@ var cache = [];
     if (typeof value === 'object' && value !== null) {
         if (cache.indexOf(value) !== -1) {
             // Circular reference found, discard key
-            console.error("Circular reference found for key "+key);
+            console.error("js.js: Circular reference found for key "+key);
             return "[Circular]";
         }
         // Store value in our collection
