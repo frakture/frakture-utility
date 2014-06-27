@@ -219,6 +219,68 @@ exports.runQueryArray=function(queryList,callback,log){
 	});
 }
 
+/*
+	improved version of run QueryArray, that returns all results as an array 
+*/
+exports.mapQueries=function(queryList,callback,log){
+	if (!log) log=console.log;
+	var conn=mysql.createConnection(process.env.MYSQL_URI);
+	
+	var lastResult=null;
+	if (!Array.isArray(queryList)){
+		 return callback(new Error("queryList must be an array"));
+	}
+	
+	conn.connect(function(err){
+				if (err){return callback(err);}
+	
+		async.mapSeries(queryList,function(query,queryListCallback){
+				if (!query) return queryListCallback(new Error("Empty query"));
+				var q=null;
+				var parameters=[];
+				if (typeof query=='string'){
+					q=query;
+				}else{
+					q=query.sql;
+					 if (query.values){
+						if (typeof query.values=='function') parameters=query.values(lastResult[0]);
+						else if (Array.isArray(query.values)) parameters=query.values;
+					}
+				}
+				
+				log("SQL: "+exports.getSQLString({sql:q,values:parameters}));
+				
+				conn.query(q, parameters, function(err,data){
+						if (err){
+							log(err);
+							if (err.toString().indexOf('ER_DUP_KEYNAME')>0 || err.toString().indexOf('ER_DUP_FIELDNAME')>0){
+								//Totally okay if columns already exist
+							}else{
+								return queryListCallback(err);
+							}
+						}
+						if (q.toLowerCase().trim().indexOf('select')==0){
+							log("SQL RESULT: "+data.length+" rows");
+						}else{
+							log("SQL RESULT: "+JSON.stringify(data));
+						}
+						
+						lastResult=data;	
+						data.query=q;
+						data.parameters=parameters;
+						queryListCallback(null,data);
+					});	
+			},function(err,results){
+				if (conn) conn.destroy();
+				if (err) return callback(err);
+				callback(null,results);
+			} );
+	});
+}
+
+
+
+
 
 
 exports.getSQLString=function(o,timeZone){

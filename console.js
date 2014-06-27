@@ -194,6 +194,14 @@ exports.makeRunnable=function(Bot,options){
                                 confirm(conf,function(err,confirmVals){
                                         if (err) throw err;
                                         if (!confirmVals.confirm || confirmVals.confirm.toLowerCase().indexOf('y')!=0) throw "You must confirm with 'y' or 'yes'";
+                                        
+                                        /* if there's a method specified, delete all non-required options with no command line values */
+                                        var opts=method.metadata.options||{};
+                                        if (optimist.argv.method){
+                                        	for (i in opts){
+                                        		if (!opts[i].required && !optimist.argv[i]) delete opts[i];
+                                        	}
+                                        }
 
                                         prompt.get({
                                                 properties:method.metadata.options
@@ -226,7 +234,7 @@ exports.makeRunnable=function(Bot,options){
 																			console.error("*** WARNING! PROGRESS CALLBACKS ARE DEPRECATED *** ");
 																			return console.log(progress);
 																		}
-																		if (typeof d=='object') console.log(JSON.stringify(d,null,4));
+																		if (typeof d=='object') console.log(util.inspect(d,{depth:null}));
 																		else console.log(d);
 																		accountCallback();
                                                                 });

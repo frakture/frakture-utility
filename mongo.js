@@ -71,38 +71,6 @@ exports.safeSet=function(update){
 	return {$set:s};
 }
 
-/*
-//This function inserts a new document with an incremental key
-exports.insertIncrementalDocument=function(doc, targetCollection,callback,killCounter) {
-        targetCollection.find( {}, { _id: 1 }).sort({ _id: -1}).limit(1).toArray(function(err,arr){
-        	if (err) throw err;
-        	if (arr[0] && Number(arr[0]._id)!=arr[0]._id) return  callback(new Error("Collection '"+targetCollection.collectionName+"' has non-numerical entries.  Cannot insert an incremental document."));
-			var seq = (arr && arr[0]) ? arr[0]._id + 1 : 1;
-			doc._id = seq;
-
-			targetCollection.insert(doc,{safe:true},function(err,results){
-				
-				if( err && err.code ) {
-					if( err.code == 11000  ){
-						
-						if (killCounter>10){
-							console.error("Error inserting a "+targetCollection.collectionName+", killCounter exceeded 10.  Last error:");
-							console.error(err);
-							return callback(err);
-						}
-						killCounter=(killCounter || 0)+1;
-						//try again
-						exports.insertIncrementalDocument(doc,targetCollection,callback,killCounter);
-						return;
-					}else{
-						return callback(new Error("unexpected error inserting data: " + JSON.stringify( err )));
-					}
-				}
-				callback(null,doc);
-			});
-		});
-}
-*/
 
 exports.insertIncrementalDocument=function(doc,targetCollection,callback,killCounter){
 	if (doc._id) return callback("document already has an _id:"+doc._id+", cannot insert");
@@ -173,7 +141,11 @@ exports.trimLeaves=function(options,callback){
 				var unset={$unset:{}};
 				unset.$unset[field]=1;
 				
-				source.update({_id:{$in:missing}},unset,{multi:true},cb);
+				if (js.bool(options.remove)){
+					source.remove({_id:{$in:missing}},cb);
+				}else{
+					source.update({_id:{$in:missing}},unset,{multi:true},cb);
+				}
 			});
 		});
 	}

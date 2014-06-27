@@ -28,3 +28,14 @@ exports.decrypt=function(encrypted){
 	}
 	return decrypted;
 }
+
+exports.generateSalt=function(len) {
+  var set = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ',
+      setLen = set.length,
+      salt = '';
+  for (var i = 0; i < len; i++) {
+    var p = Math.floor(Math.random() * setLen);
+    salt += set[p];
+  }
+  return salt;
+}
