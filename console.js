@@ -225,7 +225,8 @@ exports.makeRunnable=function(Bot,options){
                                                                 bot.warn=bot.progress;
                                                                 
                                                                 bot.account_id=account._id.toString();
-                                                        		console.log("Running "+methodName);
+                                                                //Don't log anything -- may be part of a script that requires an output!
+                                                        		//console.error("Running "+methodName);
                                                                 bot[methodName](options,function(err,d,progress){
 																		if (err) return accountCallback(err);
 																		if (progress){
