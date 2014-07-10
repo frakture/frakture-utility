@@ -138,17 +138,15 @@ exports.makeRunnable=function(Bot,options){
                         prompt.get({
                                 properties:{
                                         account_index:{
-                                                description:"Enter account indexes seperated by commas",
-                                                pattern: /^[0-9,\*]+$/,
-                                                message: 'account index must be a set of numbers',
+                                                description:"Enter account ids or indexes seperated by commas",
                                                 required: true
                                           }
                                 }
                         },function(err,result){
 	                        	if (err) return callback(err);
                                 if (result.account_index=='*') result.account_index=accounts.map(function(d,i){return i}).join(",");
-                                var indexes=result.account_index.split(",").map(function(d){return Number(d)});
-                                var accountList=accounts.filter(function(d,i){return indexes.indexOf(i)>=0});
+                                var indexes=result.account_index.split(",");
+                                var accountList=accounts.filter(function(d,i){return indexes.indexOf(""+i)>=0 || indexes.indexOf(d._id)>=0});
                                 
                                 callback(null,accountList);                        
                         });
@@ -202,15 +200,15 @@ exports.makeRunnable=function(Bot,options){
                                         		if (!opts[i].required && !optimist.argv[i]) delete opts[i];
                                         	}
                                         }
-
                                         prompt.get({
                                                 properties:method.metadata.options
                                                 },function(err,options){
-                                                        if (err) return callback(err);
+                                                        if (err) throw err;
                                                         //handle boolean values truthiness
                                                         for (i in options){
                                                         	if (options[i]=='false') options[i]=false;
                                                         }
+                                                        if (accountList.length==0) throw "No accounts match";
                                                         
                                                         async.eachSeries(accountList,function(account,accountCallback){
                                                         if (account.name!='All') console.log("Applying to "+account.name);
@@ -227,7 +225,7 @@ exports.makeRunnable=function(Bot,options){
                                                                 bot.warn=bot.progress;
                                                                 
                                                                 bot.account_id=account._id.toString();
-                                                        
+                                                        		console.log("Running "+methodName);
                                                                 bot[methodName](options,function(err,d,progress){
 																		if (err) return accountCallback(err);
 																		if (progress){
