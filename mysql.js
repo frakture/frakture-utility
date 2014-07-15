@@ -201,6 +201,7 @@ exports.runQueryArray=function(queryList,callback,log){
 							}else{
 								return queryListCallback(err);
 							}
+							data={};
 						}
 						if (q.toLowerCase().trim().indexOf('select')==0){
 							log("SQL RESULT: "+data.length+" rows");
@@ -254,7 +255,7 @@ exports.mapQueries=function(queryList,callback,log){
 						if (err){
 							log(err);
 							if (err.toString().indexOf('ER_DUP_KEYNAME')>0 || err.toString().indexOf('ER_DUP_FIELDNAME')>0){
-								//Totally okay if columns already exist
+								data={exists:true,code:err.code};//Totally okay if columns already exist
 							}else{
 								return queryListCallback(err);
 							}
