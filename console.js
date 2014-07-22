@@ -235,6 +235,7 @@ exports.makeRunnable=function(Bot,options){
 																		}
 																		if (typeof d=='object') console.log(util.inspect(d,{depth:null}));
 																		else console.log(d);
+																		console.error("*** Job complete ***");
 																		accountCallback();
                                                                 });
                                                         });

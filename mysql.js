@@ -221,15 +221,21 @@ exports.runQueryArray=function(queryList,callback,log){
 }
 
 /*
-	improved version of run QueryArray, that returns all results as an array 
+	Improved version of run QueryArray, that returns all results as an array, AND supports passed in connection options
 */
-exports.mapQueries=function(queryList,callback,log){
+exports.mapQueries=function(opts, callback){
+	if (Array.isArray(opts)) return callback("first parameter must be an object");
+
+	var log=opts.log;
 	if (!log) log=console.log;
-	var conn=mysql.createConnection(process.env.MYSQL_URI);
+	
+	var queryList=opts.queries;
+	
+	var conn=mysql.createConnection(opts.mysql_uri || process.env.MYSQL_URI);
 	
 	var lastResult=null;
 	if (!Array.isArray(queryList)){
-		 return callback(new Error("queryList must be an array"));
+		 return callback(new Error("queries must be an array"));
 	}
 	
 	conn.connect(function(err){
