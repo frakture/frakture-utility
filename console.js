@@ -69,7 +69,37 @@ exports.makeRunnable=function(Bot,options){
                 if (!botFilter){
                         return callback(null,{});
                 }
+                
+                function cleanBot(bot){
+                	 if (bot.auth){
+							 bot.auth=JSON.parse(require("./main.js").crypt.decrypt(bot.auth));
+							 console.log("Retrieved auth information for "+Object.keys(bot.auth));
+					}
+					
+					bot.configuration=bot.configuration || {};
+					bot.bot_id=bot._id.toString();
+					
+					
+					delete bot._id;
+					delete bot.label;
+					delete bot.path;
+					return bot;
+                }
 
+               
+                if (optimist.argv.bot_id){
+                	try{
+						db.collection("bot").findOne({account_id:account_id,_id:require("mongoskin").ObjectID.createFromHexString(optimist.argv.bot_id)},function(e,bot){
+							if (e) return callback(e);
+							if (!bot) return callback("Could not find bot "+optimist.argv.bot_id);
+							return callback(null,cleanBot(bot));
+						})
+					}catch(e){
+						return callback(e);
+					}
+		            return;
+		        }
+               
                 var filter={};
                 if (botFilter===true){
                 	if (!Bot.bot_path) throw "Bot.bot_path is required for this particular method";
@@ -99,20 +129,9 @@ exports.makeRunnable=function(Bot,options){
                                         if (!bot) return callback("Could not find bot "+result.bot_index);
                                         console.log("Using bot "+bot._id);
                                         
-                                        if (bot.auth){
-                                                 bot.auth=JSON.parse(require("./main.js").crypt.decrypt(bot.auth));
-                                                 console.log("Retrieved auth information for "+Object.keys(bot.auth));
-                                        }
+                                       
                                         
-                                        bot.configuration=bot.configuration || {};
-                                        bot.bot_id=bot._id.toString();
-                                        
-                                        
-                                        delete bot._id;
-                                        delete bot.label;
-                                        delete bot.path;
-                                        
-                                        return callback(null,bot);
+                                        return callback(null,cleanBot(bot));
                                 });
                 });
         }
@@ -247,6 +266,7 @@ exports.makeRunnable=function(Bot,options){
                                                         if (err){
                                                         	 console.error("**** There was an error during command line operation *****");
                                                         	 console.error(util.inspect(err));
+                                                        	 if (err.start) console.error(err.stack);
                                                         }
                                                 });
                                         });
