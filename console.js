@@ -102,8 +102,9 @@ exports.makeRunnable=function(Bot,options){
                
                 var filter={};
                 if (botFilter===true){
-                	if (!Bot.bot_path) throw "Bot.bot_path is required for this particular method";
-                	filter={path:new RegExp(Bot.bot_path)}
+                	var path=(Bot.metadata||{}).bot_path;
+                	if (!path) throw "Bot.metadata.bot_path is required for this particular method";
+                	filter={path:new RegExp(path)}
                 }else if (typeof botFilter=='object') filter=botFilter;
 
                 filter.account_id=account_id.toString();
