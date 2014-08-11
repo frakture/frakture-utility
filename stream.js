@@ -44,7 +44,7 @@ this._linebuffer = this._linebuffer.concat(lines);
 while (this._linebuffer.length > 1) {
 		var line = this._linebuffer.shift();
 		var val=this.mapFunc(line,this.counter);
-		this.push(val+newline);
+		if (val!==null) this.push(val+newline);
 		//Logging
 		if (this.counter++%1000==0){
 			var t=(new Date().getTime()-this.start);
