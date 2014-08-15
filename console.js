@@ -247,20 +247,35 @@ exports.makeRunnable=function(Bot,options){
                                                                 bot.account_id=account._id.toString();
                                                                 //Don't log anything -- may be part of a script that requires an output!
                                                         		//console.error("Running "+methodName);
-                                                                bot[methodName](options,function(err,d,progress){
-																		if (err) return accountCallback(err);
-																		if (progress){
-																			console.error("*** WARNING! PROGRESS CALLBACKS ARE DEPRECATED *** ");
-																			return console.log(progress);
-																		}
-																		if (typeof d=='object') console.log(util.inspect(d,{depth:null}));
-																		else console.log(d);
-																		if (!optimist.argv.method){
-																			//If method is specified, don't write anything
-																			console.error("*** Job complete ***");
-																		}
-																		accountCallback();
-                                                                });
+                                                        		function run(){
+																	bot[methodName](options,function(err,d,progress,update){
+																			if (err) return accountCallback(err);
+																			if (progress){
+																				console.error("*** WARNING! PROGRESS CALLBACKS ARE DEPRECATED *** ");
+																				return console.log(progress);
+																			}
+																			if (update){
+																				var timeout=5000;
+																				if (update.start_after_timestamp){
+																					timeout=(new Date(update.start_after_timestamp).getTime()-new Date().getTime())
+																				}
+																				if (update.options) options=update.options;
+																				if (!optimist.argv.method) console.log("Job Status was updated, retrying in  "+~~(timeout/1000)+" seconds");
+																				setTimeout(run,timeout);
+																				return;
+																			}
+																			
+																			if (typeof d=='object') console.log(util.inspect(d,{depth:null}));
+																			else console.log(d);
+																			
+																			if (!optimist.argv.method){
+																				//If method is specified, don't write anything -- for scripts
+																				console.error("*** Job complete ***");
+																			}
+																			accountCallback();
+																	});
+                                                                }
+                                                                run();
                                                         });
                                                 },function(err){
                                                         require("./main.js").mongo.getDB().close();

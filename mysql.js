@@ -279,7 +279,11 @@ exports.mapQueries=function(opts, callback){
 					});	
 			},function(err,results){
 				if (conn) conn.destroy();
-				if (err) return callback(err);
+				if (err){
+					console.error(err);
+					console.log("MySQL error");
+					 return callback(err);
+				}
 				callback(null,results);
 			} );
 	});
