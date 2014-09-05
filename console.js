@@ -281,8 +281,8 @@ exports.makeRunnable=function(Bot,options){
                                                         require("./main.js").mongo.getDB().close();
                                                         if (err){
                                                         	 console.error("**** There was an error during command line operation *****");
-                                                        	 console.error(util.inspect(err));
-                                                        	 if (err.start) console.error(err.stack);
+                                                        	 if (err.stack) console.error(err.stack);
+                                                        	 else console.error(util.inspect(err));
                                                         }
                                                 });
                                         });

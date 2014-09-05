@@ -164,19 +164,44 @@ exports.getType=function(options){
 		callback(err,lastResult) -- callback to run when all queries are complete
 
 */
+function getConnection(config,callback){
+	var connection;
+
+	function handleDisconnect() {
+	  connection = mysql.createConnection(config); // Recreate the connection, since
+													  // the old one cannot be reused.
+
+	  connection.connect(function(err) {              // The server is either down
+		if(err) {                                     // or restarting (takes a while sometimes).
+		  console.log('error when connecting to db:', err);
+		  return setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
+		} 
+		callback(null,connection)                                    // to avoid a hot loop, and to allow our node script to
+	  });                                     // process asynchronous requests in the meantime.
+	  connection.on('error', function(err) {
+	  	console.log("Error handler called");
+		console.log('db error', err);
+		if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+			console.log("MySQL connection lost, trying to reconnect");
+		  handleDisconnect();                         // lost due to either server restart, or a
+		} else {                                      // connnection idle timeout (the wait_timeout
+		  throw err;                                  // server variable configures this)
+		}
+	  });
+	}
+	handleDisconnect();
+}
+
 
 exports.runQueryArray=function(queryList,callback,log){
 	if (!log) log=console.log;
-	var conn=mysql.createConnection(process.env.MYSQL_URI);
-	
 	var lastResult=null;
 	if (!Array.isArray(queryList)){
 		 return callback(new Error("queryList must be an array"));
 	}
 	
-	conn.connect(function(err){
-				if (err){return callback(err);}
-	
+	getConnection(process.env.MYSQL_URI,function(err,conn){
+		if (err) return callback(err);
 		async.eachSeries(queryList,function(query,queryListCallback){
 				if (!query) return queryListCallback(new Error("Empty query"));
 				var q=null;
@@ -216,7 +241,7 @@ exports.runQueryArray=function(queryList,callback,log){
 				if (conn) conn.destroy();
 				if (err) return callback(err);
 				callback(null,lastResult);
-			} );
+		});
 	});
 }
 
@@ -231,15 +256,13 @@ exports.mapQueries=function(opts, callback){
 	
 	var queryList=opts.queries;
 	
-	var conn=mysql.createConnection(opts.mysql_uri || process.env.MYSQL_URI);
-	
 	var lastResult=null;
 	if (!Array.isArray(queryList)){
 		 return callback(new Error("queries must be an array"));
 	}
-	
-	conn.connect(function(err){
-				if (err){return callback(err);}
+
+	getConnection(opts.mysql_uri || process.env.MYSQL_URI,function(err,conn){
+		if (err){return callback(err);}
 	
 		async.mapSeries(queryList,function(query,queryListCallback){
 				if (!query) return queryListCallback(new Error("Empty query"));
@@ -259,7 +282,7 @@ exports.mapQueries=function(opts, callback){
 				
 				conn.query(q, parameters, function(err,data){
 						if (err){
-							log(err);
+							log("Error during query execution:"+err);
 							if (err.toString().indexOf('ER_DUP_KEYNAME')>0 || err.toString().indexOf('ER_DUP_FIELDNAME')>0){
 								data={exists:true,code:err.code};//Totally okay if columns already exist
 							}else{
@@ -281,15 +304,13 @@ exports.mapQueries=function(opts, callback){
 				if (conn) conn.destroy();
 				if (err){
 					console.error(err);
-					console.log("MySQL error");
+					console.log("MySQL error:"+err);
 					 return callback(err);
 				}
 				callback(null,results);
 			} );
 	});
 }
-
-
 
 
 
@@ -314,32 +335,25 @@ exports.getSQLString=function(o,timeZone){
 
 exports.escapeId=mysql.escapeId;
 
-
-
-
 /*
 function test(){
-	for (i=0; i<300; i++){
-		console.log("Available:"+pool.availableObjectsCount()+" Waiting:"+pool.waitingClientsCount());
-		exports.getConnection(function(err, conn) {
-			console.log("After return: Available:"+pool.availableObjectsCount()+" Waiting:"+pool.waitingClientsCount());
-			conn.query("SELECT SLEEP(2),"+i, function(err,data){
-				if (err){
-					console.log(err);
-					if (err.code=='PROTOCOL_CONNECTION_LOST'){
-						pool.destroy(conn);
-					}
-					return;
-				}
-				console.log(data);
-				exports.release(conn);
-			});
-		});
-	}
-	
-	pool.drain(function() { pool.destroyAllNow();});
-
+	async.forever(function(cb){
+		setTimeout(function(){
+			
+			
+			//getConnection(process.env.MYSQL_URI,function(e,conn){
+			//	if (e) return cb(e);
+			//	conn.query("SELECT 1", function(e,d){console.log(e,d); conn.destroy(); cb(e);})
+			//})
+			
+			
+			exports.mapQueries({queries:["SELECT 1"]},cb);
+		},5);
+	},function(e){
+		console.error(e);
+	});
 }
 
 test();
 */
+
