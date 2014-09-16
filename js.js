@@ -378,6 +378,7 @@ exports.assign=function(obj, prop, value) {
 
 function abbrNum(number, decPlaces) {
 	if (!Number(number)) return 0;
+	if (number<1 && number>0){return Number(number).toFixed(1);}
 	
     // 2 decimal places => 100, 3 => 1000, etc
     decPlaces = Math.pow(10,decPlaces);
@@ -410,7 +411,7 @@ function abbrNum(number, decPlaces) {
              break;
         }
     }
-
+	console.log(number);
     return number;
 }
 
@@ -418,7 +419,7 @@ exports.humanize=function(o){
 	if (o==Infinity) return "n/a";
 	switch (typeof o){
 		case 'NaN': return "n/a";
-		case 'number': return abbrNum(Math.round(o),1);
+		case 'number': return abbrNum(o,1);
 		case 'object': 
 		for (i in o){
 			if (i!="_id"){
