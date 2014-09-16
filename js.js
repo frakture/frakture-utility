@@ -411,7 +411,6 @@ function abbrNum(number, decPlaces) {
              break;
         }
     }
-	console.log(number);
     return number;
 }
 
