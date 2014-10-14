@@ -430,6 +430,34 @@ exports.humanize=function(o){
 	}
 }
 
+exports.getIntArray=function(s,nonZeroLength){
+	var a=s || [];
+	if (typeof s=='string') a=s.split(",");
+	a= a.map(function(s){return parseInt(s)}).filter(function(s){return !!s});
+	if (nonZeroLength && a.length==0) a=[0];
+	return a;
+}
+
+/* 
+	Microsoft date functions -- a number which is the count of days since some specific date.  Grr.
+*/
+exports.msdate=function(n,ignoreTimezone){
+	 if (n==null || n==Infinity || n==undefined || n=="") return "";
+	 
+	 if (typeof n=='string') n=new Date(n);
+	 
+	var returnDateTime = null;
+	if (ignoreTimezone){
+		returnDateTime=25569.0 + ((n.getTime() - (n.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
+	}else{
+		returnDateTime=25569.0 + ((n.getTime()) / (1000 * 60 * 60 * 24));
+	}
+	
+	return returnDateTime.toString().substr(0,20);
+}
+
+
+
 
 
 

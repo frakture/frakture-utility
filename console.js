@@ -290,6 +290,7 @@ exports.makeRunnable=function(Bot,options){
                                                         	 console.error("**** There was an error during command line operation *****");
                                                         	 if (err.stack) console.error(err.stack);
                                                         	 else console.error(util.inspect(err));
+                                                        	 process.exit(1);
                                                         }
                                                 });
                                         });
