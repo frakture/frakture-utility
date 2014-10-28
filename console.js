@@ -220,7 +220,7 @@ exports.makeRunnable=function(Bot,options){
                                         		if (!opts[i].required && !optimist.argv[i]) delete opts[i];
                                         	}
                                         }
-                                        method.metadata.option=method.metadata.options || {};
+                                        method.metadata.options=method.metadata.options || {};
                                         
                                         //Type is NOT respected on the command line -- 'prompt' is too specific on boolean and dates
                                         for (i in method.metadata.options){
@@ -231,6 +231,11 @@ exports.makeRunnable=function(Bot,options){
                                                 properties:method.metadata.options
                                                 },function(err,options){
                                                         if (err) throw err;
+                                                        
+                                                        for (i in optimist.argv){
+                                                        	if (optimist.argv[i] && !options[i]) options[i]=optimist.argv[i];
+                                                        }
+                                                        
                                                         //handle boolean values truthiness
                                                         for (i in options){
                                                         	if (options[i]=='false') options[i]=false;

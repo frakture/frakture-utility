@@ -256,12 +256,16 @@ exports.dezero = function(o,ignore) {
 
 /*
 	Useful function for parsing yes/no/true/false values and strings.
-	Returns true for "y"/"yes"/"Yes"/"true"/"t"/"True"/true/non-zero Number/Object	
+	* Returns true for "y"/"yes"/"Yes"/"true"/"t"/"True"/true/non-zero Number/Object	
+	* Return default value for empty string, undefined, null (default value is 'false')
 	and false for everything else
+	
 */
-exports.bool=function (x){
+exports.bool=function (x,defaultVal){
+	if (defaultVal===undefined) defaultVal=false;
+	if (x===undefined || x===null || x==="") return defaultVal;
 	if (typeof x!='string') return !!x;
-	var y=(x||"").toLowerCase();
+	var y=x.toLowerCase();
 	return !!(y.indexOf('y')+1) || !!(y.indexOf('t')+1)
 }
 
@@ -421,7 +425,7 @@ exports.humanize=function(o){
 		case 'number': return abbrNum(o,1);
 		case 'object': 
 		for (i in o){
-			if (i!="_id"){
+			if (i.slice(-3)!="_id"){
 				o[i]=exports.humanize(o[i]);
 			}
 		}
@@ -432,6 +436,8 @@ exports.humanize=function(o){
 
 exports.getIntArray=function(s,nonZeroLength){
 	var a=s || [];
+	if (typeof a=='number') a=[a];
+
 	if (typeof s=='string') a=s.split(",");
 	a= a.map(function(s){return parseInt(s)}).filter(function(s){return !!s});
 	if (nonZeroLength && a.length==0) a=[0];
