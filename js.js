@@ -1,4 +1,4 @@
-var vm = require('vm');
+var vm = require('vm'), moment=require("moment-timezone");
 /*
 	Useful js functions
 */
@@ -325,6 +325,32 @@ exports.getUnique=function(arr){
    }
    return a;
 }
+
+/*
+	Function that supports relative date calculations, like "-3d" for 3 days ago, etc
+*/
+exports.relativeDate=function(s){
+	if (!s || s=="none") return null;
+	var r=s.match(/^([+-]{1})([0-9]+)([YMwdhms]{1})$/);
+	if (r){
+		var period=null;
+		switch(r[3]){
+			case "Y": period="years"; break;
+			case "M": period="months"; break;
+			case "w": period="weeks"; break;
+			case "d": period="days"; break;
+			case "h": period="hours"; break;
+			case "m": period="minutes"; break;
+			case "s": period="seconds"; break;
+		}
+		var d=moment().subtract(parseInt(r[2]),period)
+		if (r[1]=="+") d=moment().add(parseInt(r[2]),period)
+		return d.toDate();
+	}else{
+		return new Date(s);
+	}
+}
+
 
 var dateRegex=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
 function dateFunctionReviver(key, value) {
