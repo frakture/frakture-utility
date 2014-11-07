@@ -150,7 +150,8 @@ exports.makeRunnable=function(Bot,options){
                 db.collection("account").find().sort({_id:1}).toArray(function(err,accounts){
                 
 		                if (optimist.argv.account_id){
-		                	 return callback(null,accounts.filter(function(d){return d._id.toString()==optimist.argv.account_id}));
+		                	var ids=optimist.argv.account_id.split(",");
+		                	 return callback(null,accounts.filter(function(d){return (ids.indexOf(d._id.toString())!=-1) }));
 		                }
                 
                         console.log(accounts.map(function(a,i){return i+". " +a.name+": "+a._id}).join("\r\n"));
