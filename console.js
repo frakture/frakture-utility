@@ -292,12 +292,15 @@ exports.makeRunnable=function(Bot,options){
                                                         });
                                                 },function(err){
                                                         require("./main.js").mongo.getDB().close();
+                                                        
                                                         if (err){
                                                         	 console.error("**** There was an error during command line operation *****");
                                                         	 if (err.stack) console.error(err.stack);
                                                         	 else console.error(util.inspect(err));
                                                         	 process.exit(1);
                                                         }
+                                                        //use process exit, because there might be setTimeout and polling calls
+                                                        process.exit();
                                                 });
                                         });
                                 });
