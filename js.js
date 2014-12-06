@@ -1,7 +1,33 @@
-var vm = require('vm'), moment=require("moment-timezone");
+var vm = require('vm'), moment=require("moment-timezone"),numeral=require("numeral");
 /*
 	Useful js functions
 */
+
+//Format numbers, also accepts object of numbers
+exports.format=function(n,s){	
+	if (typeof n!='object'){
+		//only format numbers
+		if(parseFloat(n)!=n) return n;
+		 return numeral(n).format(s);
+	}
+	var o={};
+	for (i in n){
+		o[i]=exports.format(n[i],s);
+	}
+	return o;
+}
+
+//Unformat numbers
+exports.unformat=function(n){
+	if(!n) return n;
+	if (typeof n!='object') return numeral(n).unformat();
+	var o={};
+	for (i in n){
+		o[i]=exports.unformat(n[i]);
+	}
+	return o;
+}
+
 exports.toArray=function(obj){
 	if (Array.isArray(obj)) return obj;
 	if (typeof obj!='object') return [obj];
