@@ -2,8 +2,11 @@ var async=require("async"),
 optimist=require("optimist"),
 	prompt=require("prompt"),
 	js=require("./js.js"),
-	util=require("util"),
+	util=require("util");
+	
+if (process.env.LOG_COLOR){
 	console=require("tracer").colorConsole();
+}
 /*
         Create a bot that uses a local account_id,and logs to the console
 */
