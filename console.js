@@ -4,6 +4,10 @@ optimist=require("optimist"),
 	js=require("./js.js"),
 	util=require("util");
 	
+/*
+	On production, don't use log coloring, because it appends content to console.out, which is used for input to other scripts
+*/
+
 if (process.env.LOG_COLOR){
 	console=require("tracer").colorConsole();
 }
