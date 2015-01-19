@@ -1,4 +1,5 @@
-var fs=require("fs");
+var fs=require("fs"),
+sf=require("slice-file");
 
 exports.mkdirp=require("mkdirp");
 
@@ -12,6 +13,24 @@ exports.validateFilename=function(s){
 	
 	throw "Invalid filename:'"+s+"'";
 }
+
+/*
+	takes a filename, and optional start & end lines
+*/
+exports.slice=function(options,callback){
+	var bot=this;
+	if (!options.filename) return callback("filename is required");
+	var s=parseInt(options.start || 0);
+	var e=options.end; if (e===undefined || e==="") e=10;
+	e=parseInt(e);
+	var xs=sf(options.filename);
+	xs.slice(s,e,function(e,l){
+		if (e) return callback(e);
+		return callback(null,l.map(function(d){return d.toString()}))
+	});
+}
+
+
 
 /*
  Get a new, timestamp based filename, creating any necessary directories

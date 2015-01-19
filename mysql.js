@@ -143,6 +143,16 @@ exports.getType=function(options){
 		}
 }
 
+/* Stupid mysql doesn't accept iso8601 dates - check for them here and remove the Z 
+
+*/
+var isoRegex=/[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]{12}Z/;
+
+exports.convertISO8601ToSQL=function(s){
+	if (s && s.length==24 && (typeof s=='string') && s.match(isoRegex)) return s.slice(0,23);
+	return s;
+}
+
 /*
 
 	Run a series of queries in an array, back to back, and call the callback with the final result when complete
