@@ -1,5 +1,3 @@
-//Some utilities for request/response, etc
-var mongo=require('mongoskin');
 
 exports.validateObject=function(input,fieldArray){
 	var res={};

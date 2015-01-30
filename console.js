@@ -97,7 +97,7 @@ exports.makeRunnable=function(Bot,options){
                
                 if (optimist.argv.bot_id){
                 	try{
-						db.collection("bot").findOne({account_id:account_id,_id:require("mongoskin").ObjectID.createFromHexString(optimist.argv.bot_id)},function(e,bot){
+						db.collection("bot").findOne({account_id:account_id,_id:utilities.mongo.getObjectID(optimist.argv.bot_id)},function(e,bot){
 							if (e) return callback(e);
 							if (!bot) return callback("Could not find bot "+optimist.argv.bot_id);
 							return callback(null,cleanBot(bot));
