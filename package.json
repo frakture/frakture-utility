@@ -14,8 +14,9 @@
   "main": "./main",
   "dependencies": {
     "encdec": "latest",
+    "deasync": "0.0.8",
     "hogan.js": ">=2.0.0",
-    "mongoskin": "0.5.0",
+    "mongodb": "~2.0",
     "async": ">=0.2.8",
     "generic-pool": ">=2.0.3",
     "moment-timezone": "0.2.4",

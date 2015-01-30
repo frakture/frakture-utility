@@ -1,29 +1,43 @@
 /* Defines mongo connection information */
 var db=null;
 
-var common_mongo=require("./mongo_common.js");
-var mongoskin=require('mongoskin');
-var js=require("./js.js");
-var async=require("async");
-var mysql=require("./mysql.js");
+var common_mongo=require("./mongo_common.js"),
+mongodb=require('mongodb'),js=require("./js.js"),
+async=require("async"),
+mysql=require("./mysql.js");
 
 for (i in common_mongo){exports[i]=common_mongo[i];}
 
+/*
+	There are some legacy synchronous calls to get a database connection synchronously.  Thus the need for Fibers/sleep
+*/
 
-exports.getDB=function(){
+
+exports.getDB=function(callback){
 	if (!process.env.MONGO_URI){
-		throw new Error("MONGO_URI environment variable is required");
+		return callback("MONGO_URI environment variable is required");
 	}
-	if (db==null){
-		db=require('mongoskin').db((process.env.MONGO_URI),
-			{auto_reconnect:true,maxPoolSize:10,safe:true});
+	if (db!=null) return db;
+	
+	mongodb.MongoClient.connect(process.env.MONGO_URI,{auto_reconnect:true,maxPoolSize:10},function(err,d){
+		if (err) throw err;
+		db=d;
+	});
+	while(db===null){
+		require('deasync').runLoopOnce();
 	}
+	
 	return db;
 }
 
+/* For legacy reasons, have to make this a synchronous call */
+
+
+
 exports.getObjectID=function(v){
-	return (typeof v=='string')?mongoskin.ObjectID.createFromHexString(v):v;
+	return (typeof v=='string')?mongodb.ObjectID.createFromHexString(v):v;
 }
+
 exports.getObjectId=exports.getObjectID;
 
 
@@ -31,7 +45,7 @@ exports.convertOid=function(o){
 	if (typeof o!='object') return o;
 	for (i in o){
 		if (!o[i]){
-		}else if (typeof o[i]=='object' && o[i]["$oid"]){ o[i]=mongoskin.ObjectID.createFromHexString(o[i]["$oid"]);
+		}else if (typeof o[i]=='object' && o[i]["$oid"]){ o[i]=mongodb.ObjectID.createFromHexString(o[i]["$oid"]);
 		}else{ 
 		o[i]=exports.convertOid(o[i]);}
 	}
