@@ -19,7 +19,7 @@ exports.getDB=function(callback){
 	}
 	if (db!=null) return db;
 	
-	mongodb.MongoClient.connect(process.env.MONGO_URI,{auto_reconnect:true,maxPoolSize:10},function(err,d){
+	mongodb.MongoClient.connect(process.env.MONGO_URI+"?w=1",{auto_reconnect:true,maxPoolSize:10},function(err,d){
 		if (err) throw err;
 		db=d;
 	});
