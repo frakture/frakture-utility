@@ -32,7 +32,7 @@ exports.getDB=function(callback){
 
 /* For legacy reasons, have to make this a synchronous call */
 
-
+exports.ObjectID=mongodb.ObjectID;
 
 exports.getObjectID=function(v){
 	return (typeof v=='string')?mongodb.ObjectID.createFromHexString(v):v;

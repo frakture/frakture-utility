@@ -204,7 +204,7 @@ function getConnection(config,callback){
 
 
 exports.runQueryArray=function(queryList,callback,log){
-	if (!log) log=console.log;
+	if (!log) log=console.error;
 	var lastResult=null;
 	if (!Array.isArray(queryList)){
 		 return callback(new Error("queryList must be an array"));
@@ -262,7 +262,7 @@ exports.mapQueries=function(opts, callback){
 	if (Array.isArray(opts)) return callback("first parameter must be an object");
 
 	var log=opts.log;
-	if (!log) log=console.log;
+	if (!log) log=console.error;
 	
 	var queryList=opts.queries;
 	
