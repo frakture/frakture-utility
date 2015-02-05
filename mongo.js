@@ -94,6 +94,11 @@ exports.insertIncrementalDocument=function(doc,targetCollection,callback,killCou
    var ret = db.collection("counters").findAndModify({ _id:name },{},{ $inc: { seq: 1 } },{new: true}
 	   ,function(err,d){
 			if (err) return callback(err);
+			
+			//I think this is a driver bug, that sometimes returns back the full mongo response, not just the document
+			if (d.lastErrorObject){
+		   		d=d.value;
+		   	}
 			if (!d){
 				console.log("No sequence named "+name);
 				if (killCounter>10){
@@ -113,9 +118,10 @@ exports.insertIncrementalDocument=function(doc,targetCollection,callback,killCou
 				});
 				return;
 			}
-		
+			
 			doc._id=d.seq;
-			targetCollection.save(doc,{safe:true},function(err){
+
+			targetCollection.save(doc,function(err){
 				if (err) return callback(err);
 				return callback(null,doc);
 			});
