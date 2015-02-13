@@ -2,7 +2,8 @@ var async=require("async"),
 optimist=require("optimist"),
 	prompt=require("prompt"),
 	js=require("./js.js"),
-	util=require("util");
+	util=require("util"),
+	utilities=require("./main.js");
 	
 /*
 	On production, don't use log coloring, because it appends content to console.out, which is used for input to other scripts
@@ -29,7 +30,7 @@ exports.getBot=function(path){
 */
 
 exports.callback=function(err,d){
-        require("./main.js").mongo.getDB().close();
+        utilities.mongo.getDB().close();
         if (err){console.error("**** ERROR *****"); console.error(err);}
         console.log(JSON.stringify(d,null,4));
         console.log("\nFinished.");
@@ -262,7 +263,7 @@ exports.makeRunnable=function(Bot,options){
                                                                 }
                                                                 
                                                                 bot.log=console.log;
-                                                                bot.progress=function(p){console.log(p);}
+                                                                bot.progress=function(){console.log.apply(this,arguments);}
                                                                 bot.warn=bot.progress;
                                                                 
                                                                 bot.account_id=account._id.toString();
@@ -271,9 +272,11 @@ exports.makeRunnable=function(Bot,options){
                                                         		
                                                         		//Remove account_id, and other things that are possible on the command line
                                                         		delete options.account_id;
-                                                        		delete options.method;
                                                         		delete options._;
+                                                        		delete options.method;
                                                         		delete options["$0"];
+                                                        		
+                                                        		bot.job={method:methodName};
                                                         		
                                                         		function run(){
 																	bot[methodName](options,function(err,d,progress,update){
