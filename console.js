@@ -268,6 +268,13 @@ exports.makeRunnable=function(Bot,options){
                                                                 bot.account_id=account._id.toString();
                                                                 //Don't log anything -- may be part of a script that requires an output!
                                                         		//console.error("Running "+methodName);
+                                                        		
+                                                        		//Remove account_id, and other things that are possible on the command line
+                                                        		delete options.account_id;
+                                                        		delete options.method;
+                                                        		delete options._;
+                                                        		delete options["$0"];
+                                                        		
                                                         		function run(){
 																	bot[methodName](options,function(err,d,progress,update){
 																			if (err) return accountCallback(err);
