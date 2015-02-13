@@ -3,7 +3,7 @@ optimist=require("optimist"),
 	prompt=require("prompt"),
 	js=require("./js.js"),
 	util=require("util"),
-	utilities=require("./main.js");
+	mongo=require("./mongo.js");
 	
 /*
 	On production, don't use log coloring, because it appends content to console.out, which is used for input to other scripts
@@ -30,7 +30,7 @@ exports.getBot=function(path){
 */
 
 exports.callback=function(err,d){
-        utilities.mongo.getDB().close();
+        mongo.getDB().close();
         if (err){console.error("**** ERROR *****"); console.error(err);}
         console.log(JSON.stringify(d,null,4));
         console.log("\nFinished.");
@@ -98,7 +98,7 @@ exports.makeRunnable=function(Bot,options){
                
                 if (optimist.argv.bot_id){
                 	try{
-						db.collection("bot").findOne({account_id:account_id,_id:utilities.mongo.getObjectID(optimist.argv.bot_id)},function(e,bot){
+						db.collection("bot").findOne({account_id:account_id,_id:mongo.getObjectID(optimist.argv.bot_id)},function(e,bot){
 							if (e) return callback(e);
 							if (!bot) return callback("Could not find bot "+optimist.argv.bot_id);
 							return callback(null,cleanBot(bot));
