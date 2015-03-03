@@ -375,7 +375,7 @@ exports.relativeDate=function(s){
 		if (r[1]=="+") d=moment().add(parseInt(r[2]),period)
 		return d.toDate();
 	}else{
-		return new Date(s);
+		return moment.utc(s).toDate();
 	}
 }
 

@@ -69,8 +69,15 @@ exports.makeRunnable=function(Bot,options){
         
         
         function confirm(opts,callback){
+        	//remove required confirmation -- gets old
+        	return callback(null,{confirm:'y'});
+        	
                 if (options.confirm==false) return callback(null,{confirm:'y'});
                         prompt.get({properties:{confirm:{description:opts.label,required:true}}},callback);
+        }
+        
+        function log(){
+	        if (!optimist.argv.method) console.log.apply(this,arguments);
         }
         
         function getBotConfig(botFilter,account_id,callback){
@@ -82,7 +89,7 @@ exports.makeRunnable=function(Bot,options){
                 function cleanBot(bot){
                 	 if (bot.auth){
 							 bot.auth=JSON.parse(require("./main.js").crypt.decrypt(bot.auth));
-							 console.log("Retrieved auth information for "+Object.keys(bot.auth));
+							 log("Retrieved auth information for "+Object.keys(bot.auth));
 					}
 					
 					bot.configuration=bot.configuration || {};
@@ -117,12 +124,16 @@ exports.makeRunnable=function(Bot,options){
                 }else if (typeof botFilter=='object') filter=botFilter;
 
                 filter.account_id=account_id.toString();
-                console.log("Retrieving bots with "+js.serialize(filter));
+                log("Retrieving bots with "+js.serialize(filter));
                 if (db==null) db=require("./main.js").mongo.getDB();
                 db.collection("bot").find(filter).sort({_id:1}).toArray(function(err,bots){
 	                	if (err) return callback(err);
                         if (bots.length==0) return callback("Could not find any bots with these conditions");
-                        console.log(bots.map(function(a,i){return "Bot "+i+". " +a.label+": "+a.path+" ("+a._id+")"}).join("\r\n"));
+                        if (bots.length==1){
+                        	log("Using only matching bot:"+bots[0]._id);
+                        	return callback(null,cleanBot(bots[0]))
+                        }
+                        log(bots.map(function(a,i){return "Bot "+i+". " +a.label+": "+a.path+" ("+a._id+")"}).join("\r\n"));
                         prompt.get({
                                 properties:{
                                         bot_index:{
@@ -137,7 +148,7 @@ exports.makeRunnable=function(Bot,options){
                                         if (err) return callback(err);
                                         var bot=bots[parseInt(result.bot_index)];
                                         if (!bot) return callback("Could not find bot "+result.bot_index);
-                                        console.log("Using bot "+bot._id);
+                                        log("Using bot "+bot._id);
                                         
                                        
                                         
@@ -163,7 +174,7 @@ exports.makeRunnable=function(Bot,options){
 		                	 return callback(null,accounts.filter(function(d){return (ids.indexOf(d._id.toString())!=-1) }));
 		                }
                 
-                        console.log(accounts.map(function(a,i){return i+". " +a.name+": "+a._id}).join("\r\n"));
+                        log(accounts.map(function(a,i){return i+". " +a.name+": "+a._id}).join("\r\n"));
         
                         prompt.get({
                                 properties:{
@@ -202,7 +213,7 @@ exports.makeRunnable=function(Bot,options){
                 
                 getAccounts(options,function(err,accountList){
                 
-						if (!optimist.argv.method) console.log("Available methods:"+methods.map(function(m){return m.name;}).join(","));                
+						log("Available methods:"+methods.map(function(m){return m.name;}).join(","));                
                         prompt.get({
                         properties:{
                                 method:methodOpts
@@ -253,7 +264,7 @@ exports.makeRunnable=function(Bot,options){
                                                         if (accountList.length==0) throw "No accounts match";
                                                         
                                                         async.eachSeries(accountList,function(account,accountCallback){
-                                                        if (account.name!='All') console.log("Applying to "+account.name);
+                                                        if (account.name!='All') log("Applying to "+account.name);
                                                         
                                                         getBotConfig(method.metadata.bot,account._id,function(err,botConfig){
                                                                 if (err) throw err;
@@ -299,10 +310,8 @@ exports.makeRunnable=function(Bot,options){
 																			if (typeof d=='object') console.log(util.inspect(d,{depth:null}));
 																			else console.log(d);
 																			
-																			if (!optimist.argv.method){
-																				//If method is specified, don't write anything -- for scripts
-																				console.error("*** Job complete ***");
-																			}
+																			log("*** Job complete ***");
+																			
 																			accountCallback();
 																	});
                                                                 }
