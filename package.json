@@ -22,7 +22,7 @@
     "mysql": "2.4.2",
     "mkdirp": ">=0.3.5",
     "numeral": "1.5.3",
-    "sift": ">=0.0.12",
+    "sift": "1.1.0",
     "slice-file": "0.2.1",
     "optimist": ">=0.6.0",
     "prompt": "0.2.14",

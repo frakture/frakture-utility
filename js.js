@@ -400,7 +400,8 @@ exports.addArrayFindPrototype=function(){
 	if (Array.prototype.findOne) return;
 	Object.defineProperty(Array.prototype, "findOne", {value:function(object){
 		var func=sift(object);
-		for (i=0; i<this.length; i++){if (func.test(this[i])) return this[i];}
+		if (func.test) func=func.test;
+		for (i=0; i<this.length; i++){if (func(this[i])) return this[i];}
 		return null;
 	},enumerable:false
 	});
