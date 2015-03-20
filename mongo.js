@@ -18,7 +18,7 @@ exports.getDB=function(callback){
 		return callback("MONGO_URI environment variable is required");
 	}
 	if (db!=null) return db;
-	var uri=process.env.MONGO_URI+(process.env.MONGO_URI.indexOf("?")>0?"&w=1":"?w=1")
+	var uri=process.env.MONGO_URI;//+(process.env.MONGO_URI.indexOf("?")>0?"&w=1":"?w=1")
 	
 	mongodb.MongoClient.connect(uri,{auto_reconnect:true,maxPoolSize:10},function(err,d){
 		if (err){

@@ -40,6 +40,16 @@ exports.toArray=function(obj){
 	return r;
 }
 
+/* Split a string or an array into unique items */
+exports.split=function(o,delimiter){
+	if (!o) return [];
+	var delim=delimiter||",";
+	if (typeof o=='string') o=[o];
+	var r=[];
+	o.forEach(function(i){r=r.concat(i.split(delim));})
+	return r;
+}
+
 
 //Takes an object, and returns back an array sorted by the value of the object
 exports.sortObject=function(obj) {

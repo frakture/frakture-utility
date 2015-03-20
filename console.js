@@ -128,12 +128,13 @@ exports.makeRunnable=function(Bot,options){
                 if (db==null) db=require("./main.js").mongo.getDB();
                 db.collection("bot").find(filter).sort({_id:1}).toArray(function(err,bots){
 	                	if (err) return callback(err);
-                        if (bots.length==0) return callback("Could not find any bots with these conditions");
+                        if (bots.length==0) return callback("Could not find any bots with these conditions:"+util.inspect(filter));
                         if (bots.length==1){
                         	log("Using only matching bot:"+bots[0]._id);
                         	return callback(null,cleanBot(bots[0]))
-                        }
-                        log(bots.map(function(a,i){return "Bot "+i+". " +a.label+": "+a.path+" ("+a._id+")"}).join("\r\n"));
+                        }else{
+	                        console.log(bots.map(function(a,i){return "Bot "+i+". " +a.label+": "+a.path+" ("+a._id+")"}).join("\r\n"));
+	                    }
                         prompt.get({
                                 properties:{
                                         bot_index:{
