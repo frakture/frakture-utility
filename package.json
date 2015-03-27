@@ -26,7 +26,8 @@
     "slice-file": "0.2.1",
     "optimist": ">=0.6.0",
     "prompt": "0.2.14",
-    "tracer": "0.7.3"
+    "tracer": "0.7.3",
+    "ttys":"0.0.3"
   },
   "devDependencies": {}
 }

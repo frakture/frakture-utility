@@ -8,17 +8,34 @@ mysql=require("./mysql.js");
 
 for (i in common_mongo){exports[i]=common_mongo[i];}
 
+exports.init=function(callback){
+	if (!process.env.MONGO_URI){
+		return callback("MONGO_URI environment variable is required");
+	}
+	if (db!=null) return callback(null,db);
+	var uri=process.env.MONGO_URI;
+	
+	mongodb.MongoClient.connect(uri,{auto_reconnect:true,maxPoolSize:10},function(err,d){
+		if (err){
+			return callback(err);
+		}
+		db=d;
+		callback(null,d);
+	});
+}
+
 /*
 	There are some legacy synchronous calls to get a database connection synchronously.  Thus the need for Fibers/sleep
 */
-
 
 exports.getDB=function(callback){
 	if (!process.env.MONGO_URI){
 		return callback("MONGO_URI environment variable is required");
 	}
 	if (db!=null) return db;
-	var uri=process.env.MONGO_URI;//+(process.env.MONGO_URI.indexOf("?")>0?"&w=1":"?w=1")
+	console.error("***MongoDB: Deprecated call to getDB without init having been called***");
+	
+	var uri=process.env.MONGO_URI;
 	
 	mongodb.MongoClient.connect(uri,{auto_reconnect:true,maxPoolSize:10},function(err,d){
 		if (err){
