@@ -1,5 +1,20 @@
 /* Defines mongo connection information */
-var db=null;
+var db={
+	isInitialized:false,
+	collection:function(a){
+		console.error("***MongoDB: Deprecated call to getDB without init having been called***");
+		console.error(new Error().stack);
+		exports.init(function(e,d){
+			if (e) throw e;
+		});
+		
+		while(!db.isInitialized){
+			require('deasync').runLoopOnce();
+		}
+	
+		return db.collection(a);
+	}
+};
 
 var common_mongo=require("./mongo_common.js"),
 mongodb=require('mongodb'),js=require("./js.js"),
@@ -12,14 +27,19 @@ exports.init=function(callback){
 	if (!process.env.MONGO_URI){
 		return callback("MONGO_URI environment variable is required");
 	}
-	if (db!=null) return callback(null,db);
+	
+	if (db.isInitialized) return callback(null,db);
 	var uri=process.env.MONGO_URI;
 	
 	mongodb.MongoClient.connect(uri,{auto_reconnect:true,maxPoolSize:10},function(err,d){
 		if (err){
 			return callback(err);
 		}
-		db=d;
+		for (i in d){
+			db[i]=d[i];
+		}
+		db.isInitialized=true;
+		
 		callback(null,d);
 	});
 }
@@ -32,22 +52,6 @@ exports.getDB=function(callback){
 	if (!process.env.MONGO_URI){
 		return callback("MONGO_URI environment variable is required");
 	}
-	if (db!=null) return db;
-	console.error("***MongoDB: Deprecated call to getDB without init having been called***");
-	
-	var uri=process.env.MONGO_URI;
-	
-	mongodb.MongoClient.connect(uri,{auto_reconnect:true,maxPoolSize:10},function(err,d){
-		if (err){
-			console.error("Error connecting:",err);
-			 throw err;
-		}
-		db=d;
-	});
-	while(db===null){
-		require('deasync').runLoopOnce();
-	}
-	
 	return db;
 }
 
