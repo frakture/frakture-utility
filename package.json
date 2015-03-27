@@ -5,7 +5,7 @@
   "keywords": [
     "utility"
   ],
-  "version": "0.1.72",
+  "version": "0.1.73",
   "homepage": "https://github.com/frakture/frakture-utility",
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
     "optimist": ">=0.6.0",
     "prompt": "0.2.14",
     "tracer": "0.7.3",
-    "ttys":"0.0.3"
+    "ttys": "0.0.3"
   },
   "devDependencies": {}
 }
