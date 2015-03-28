@@ -1,9 +1,11 @@
 var async=require("async"),
-optimist=require("optimist"),
+	optimist=require("optimist"),
 	prompt=require("prompt"),
 	js=require("./js.js"),
 	util=require("util"),
-	mongo=require("./mongo.js");
+	mongo=require("./mongo.js"),
+	progress=require("debug")("progress"),
+	debug=require("debug")("console");
 	
 /*
 	On production, don't use log coloring, because it appends content to console.out, which is used for input to other scripts
@@ -340,7 +342,7 @@ exports.makeRunnable=function(Bot,options){
                                                                 }
                                                                 
                                                                 bot.log=console.log;
-                                                                bot.progress=function(){console.log.apply(this,arguments);}
+                                                                bot.progress=function(){progress.apply(this,arguments);}
                                                                 bot.warn=bot.progress;
                                                                 
                                                                 bot.account_id=account._id.toString();
