@@ -44,7 +44,7 @@ exports.callback=function(err,d){
                 utilities.console.makeRunnable(Bot);
         }
         
-        utilities.console.makeRunnable(Bot,{accounts:false,confirm:false});
+        utilities.console.makeRunnable(Bot,{accounts:false});
         
         Also allows for command line options
 */
@@ -55,30 +55,34 @@ exports.makeRunnable=function(Bot,options){
         options=options ||{};
         
         var stdInOptions={};
-        var ttys=null;
+  
         
         function getStdIn(cb){
-        	//NOT working yet
-        	//return cb();
+        	
+        	//ttys used /dev/tty, which is NOT available when running a cron job, thus ttys does NOT work
+        	//We must do EITHER TTY mode, or inline mode and throw errors
         	
         	if (process.stdin.isTTY){
         		 return cb();
         	}
-
-			ttys=ttys || require("ttys");
+			
         	process.stdin.resume();
 			//process.stdin.setEncoding('utf8');
+			var toParse="";
 			process.stdin.on('data', function(data) {
-				try{
-				  stdInOptions=JSON.parse(data);
-				}catch(e){
-					console.error(e);
-				}
+				toParse+=data;
 			});
 	
 			process.stdin.on('end', function() {
-				ttys.stdin.pause();
-				cb();
+				if (toParse){
+					require("./js.js").safeEval(toParse,function(e,d){
+						if (e) throw e;
+						stdInOptions=d;
+					});
+					return cb();
+				}else{
+					return cb();
+				}
 			});
         }
         
@@ -94,20 +98,10 @@ exports.makeRunnable=function(Bot,options){
 			
 			var stdin=process.stdin;
 			var stdout=process.stdout;
-			if (!stdin.isTTY){
-				
-				ttys=ttys || require("ttys");
-				stdin=ttys.stdin;
-				stdin.on("error",function(e){
-					console.error(e);
-				});
-				stdout=ttys.stdout;
-				stdout.on("error",function(e){
-					console.error(e);
-				});
-			}
 			
-			prompt.start({stdin:stdin,stdout:stdout});
+			if (stdin.isTTY){
+				prompt.start({stdin:stdin,stdout:stdout});
+			}
 			
 			var db=null;
 			function getDB(cb){
@@ -138,14 +132,6 @@ exports.makeRunnable=function(Bot,options){
 					return;
 			}
 		
-		
-			function confirm(opts,callback){
-				//remove required confirmation -- gets old
-				return callback(null,{confirm:'y'});
-			
-					if (options.confirm==false) return callback(null,{confirm:'y'});
-							prompt.get({properties:{confirm:{description:opts.label,required:true}}},callback);
-			}
 		
 			function log(){
 				if (!optimist.argv.method) console.log.apply(this,arguments);
@@ -243,6 +229,8 @@ exports.makeRunnable=function(Bot,options){
 								var ids=optimist.argv.account_id.split(",");
 								 return callback(null,accounts.filter(function(d){return (ids.indexOf(d._id.toString())!=-1) }));
 							}
+							
+							if (!stdin.isTTY) return callback("No organization specified, and not using TTY interface");
 				
 							log(accounts.map(function(a,i){return i+". " +a.name+": "+a._id}).join("\r\n"));
 		
@@ -265,22 +253,25 @@ exports.makeRunnable=function(Bot,options){
 				});
 			}
                 
-                var methodOpts={type:'string',description:"Method",required:true,enum:methods.map(function(d){return d.name})};
-                methodOpts.default=methods[methods.length-1].name;
-                
-                if (optimist.argv.method){
-	                var targetMethod=methods.filter(function(m){return m.name==optimist.argv.method});
-	                if (targetMethod && targetMethod[0] && targetMethod[0].metadata){
-	                	if (targetMethod[0].metadata.accounts===false){
-		                	options.accounts=false;
-		                }
-		                if (targetMethod[0].metadata.confirm===false){
-			                options.confirm=false;
-		                }
-	                }
-                }
                 getAccounts(options,function(err,accountList){
-						log("Available methods:"+methods.map(function(m){return m.name;}).join(","));                
+                	if (err) throw err;
+                
+                	if (!stdin.isTTY && !prompt.override.method) throw("No method specified, and not using TTY interface");
+                	
+					var methodOpts={type:'string',description:"Method",required:true,enum:methods.map(function(d){return d.name})};
+					methodOpts.default=methods[methods.length-1].name;
+				
+					if (prompt.override.method){
+						var targetMethod=methods.filter(function(m){return m.name==prompt.override.method});
+						if (targetMethod && targetMethod[0] && targetMethod[0].metadata){
+							if (targetMethod[0].metadata.accounts===false){
+								options.accounts=false;
+							}
+						}
+					}
+                
+						log("Available methods:"+methods.map(function(m){return m.name;}).join(","));
+						
                         prompt.get({
                         properties:{
                                 method:methodOpts
@@ -295,17 +286,12 @@ exports.makeRunnable=function(Bot,options){
                                 if (method.length==0) throw "Could not find method "+method;
                                 method=method[0];
                                 
-                                var conf={label:"Apply "+methodName+" to "+accountList.map(function(a){return a.name}).join(",")+"? (y/n)"};
-                                
-                                confirm(conf,function(err,confirmVals){
-                                        if (err) throw err;
-                                        if (!confirmVals.confirm || confirmVals.confirm.toLowerCase().indexOf('y')!=0) throw "You must confirm with 'y' or 'yes'";
                                         
                                         /* if there's a method specified, delete all non-required options with no command line values */
                                         var opts=method.metadata.options||{};
-                                        if (optimist.argv.method){
+                                        if (prompt.override.method){
                                         	for (i in opts){
-                                        		if (!opts[i].required && !optimist.argv[i]) delete opts[i];
+                                        		if (!opts[i].required && !prompt.override[i]) delete opts[i];
                                         	}
                                         }
                                         method.metadata.options=method.metadata.options || {};
@@ -321,8 +307,8 @@ exports.makeRunnable=function(Bot,options){
                                                         if (err) throw err;
                                                         
                                                         
-                                                        for (i in optimist.argv){
-                                                        	if (optimist.argv[i] && !options[i]) options[i]=optimist.argv[i];
+                                                        for (i in prompt.override){
+                                                        	if (prompt.override[i] && !options[i]) options[i]=prompt.override[i];
                                                         }
                                                         
                                                         //handle boolean values truthiness
@@ -370,7 +356,7 @@ exports.makeRunnable=function(Bot,options){
 																					timeout=(new Date(update.start_after_timestamp).getTime()-new Date().getTime())
 																				}
 																				if (update.options) options=update.options;
-																				if (!optimist.argv.method) console.log("Job Status was updated, retrying in  "+~~(timeout/1000)+" seconds");
+																				if (!prompt.override.method) console.error("Job Status was updated, retrying in  "+~~(timeout/1000)+" seconds");
 																				setTimeout(run,timeout);
 																				return;
 																			}
@@ -404,7 +390,6 @@ exports.makeRunnable=function(Bot,options){
                                                         process.exit();
                                                 });
                                         });
-                                });
             	    });
         	});
         });
