@@ -5,7 +5,8 @@ var async=require("async"),
 	util=require("util"),
 	mongo=require("./mongo.js"),
 	progress=require("debug")("progress"),
-	debug=require("debug")("console");
+	debug=require("debug")("console"),
+	fs=require("fs");
 	
 /*
 	On production, don't use log coloring, because it appends content to console.out, which is used for input to other scripts
@@ -135,7 +136,7 @@ exports.makeRunnable=function(Bot,options){
 		
 		
 			function log(){
-				if (!optimist.argv.method) console.log.apply(this,arguments);
+				if (!optimist.argv.method) console.error.apply(this,arguments);
 			}
 		
 			function getBotConfig(botFilter,account_id,callback){
@@ -194,25 +195,25 @@ exports.makeRunnable=function(Bot,options){
 									console.log(bots.map(function(a,i){return "Bot "+i+". " +a.label+": "+a.path+" ("+a._id+")"}).join("\r\n"));
 								}
 								prompt.get({
-										properties:{
-												bot_index:{
-														description:"Enter bot index",
-														pattern: /^[0-9]+$/,
-														message: 'bot index must be a number',
-														required: true,
-														default:0
-												  }
-										}
-										},function(err,result){
-												if (err) return callback(err);
-												var bot=bots[parseInt(result.bot_index)];
-												if (!bot) return callback("Could not find bot "+result.bot_index);
-												log("Using bot "+bot._id);
-										
-									   
-										
-												return callback(null,cleanBot(bot));
-										});
+									properties:{
+											bot_index:{
+													description:"Enter bot index",
+													pattern: /^[0-9]+$/,
+													message: 'bot index must be a number',
+													required: true,
+													default:0
+											  }
+									}
+									},function(err,result){
+											if (err) return callback(err);
+											var bot=bots[parseInt(result.bot_index)];
+											if (!bot) return callback("Could not find bot "+result.bot_index);
+											log("Using bot "+bot._id);
+									
+								   
+									
+											return callback(null,cleanBot(bot));
+									});
 						});
 					});
 			}
@@ -343,40 +344,45 @@ exports.makeRunnable=function(Bot,options){
                                                         		delete options["$0"];
                                                         		
                                                         		bot.job={method:methodName};
-                                                        		function run(){
-																	bot[methodName](options,function(err,d,progress,update){
-																			if (err) return accountCallback(err);
+                                                        		getDB(function(e){
+                                                        			if (e) return callback(e);
+																	function run(){
+																		bot[methodName](options,function(err,d,progress,update){
+																				if (err) return accountCallback(err);
 																			
-																			if (progress){
-																				console.error("*** WARNING! PROGRESS CALLBACKS ARE DEPRECATED *** ");
-																				return console.log(progress);
-																			}
-																			if (update){
-																				var timeout=5000;
-																				if (update.start_after_timestamp){
-																					timeout=(new Date(update.start_after_timestamp).getTime()-new Date().getTime())
+																				if (progress){
+																					console.error("*** WARNING! PROGRESS CALLBACKS ARE DEPRECATED *** ");
+																					return console.log(progress);
 																				}
-																				if (update.options) options=update.options;
-																				if (!prompt.override.method) console.error("Job Status was updated, retrying in  "+~~(timeout/1000)+" seconds");
-																				setTimeout(run,timeout);
-																				return;
-																			}
+																				if (update){
+																					var timeout=5000;
+																					if (update.start_after_timestamp){
+																						timeout=(new Date(update.start_after_timestamp).getTime()-new Date().getTime())
+																					}
+																					if (update.options) options=update.options;
+																					if (!prompt.override.method) console.error("Job Status was updated, retrying in  "+~~(timeout/1000)+" seconds");
+																					setTimeout(run,timeout);
+																					return;
+																				}
+																				
+																				log("*** Job complete ***");
 																			
-																			if (typeof d=='object'){
-																				if (process.stdout.isTTY){
-																					console.log(util.inspect(d,{depth:null}));
+																				if (typeof d=='object'){
+																					if (process.stdout.isTTY){
+																						console.log(util.inspect(d,{depth:null}));
+																					}else{
+																						d.account_id=bot.account_id;
+																						console.log(JSON.stringify(d));
+																					}
 																				}else{
-																					d.account_id=bot.account_id;
-																					console.log(JSON.stringify(d));
+																					console.log(d);
 																				}
-																			}else console.log(d);
-																			
-																			log("*** Job complete ***");
-																			
-																			accountCallback();
-																	});
-                                                                }
-                                                                run();
+																				fs.writeFile("bot.out",JSON.stringify(d,null,4),accountCallback);
+																		});
+																	}
+																	run();
+																});
+                                                                
                                                         });
                                                 },function(err){
                                                         require("./main.js").mongo.getDB().close();
