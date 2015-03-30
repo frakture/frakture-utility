@@ -96,6 +96,7 @@ exports.makeRunnable=function(Bot,options){
 				if (!prompt.override[i]) prompt.override[i]=stdInOptions[i];
 			}
 			
+		
 			var stdin=process.stdin;
 			var stdout=process.stdout;
 			
