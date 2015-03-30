@@ -260,11 +260,11 @@ exports.makeRunnable=function(Bot,options){
                 
                 	if (!stdin.isTTY && !prompt.override.method) throw("No method specified, and not using TTY interface");
                 	
-					var methodOpts={type:'string',description:"Method",required:true,enum:methods.map(function(d){return d.name})};
+					var methodOpts={type:'string',description:"Method",required:true};
 					methodOpts.default=methods[methods.length-1].name;
 				
 					if (prompt.override.method){
-						var targetMethod=methods.filter(function(m){return m.name==prompt.override.method});
+						var targetMethod=methods.filter(function(m){return m.name.toLowerCase()==prompt.override.method.toLowerCase()});
 						if (targetMethod && targetMethod[0] && targetMethod[0].metadata){
 							if (targetMethod[0].metadata.accounts===false){
 								options.accounts=false;
@@ -284,9 +284,11 @@ exports.makeRunnable=function(Bot,options){
                         
                                 var methodName=result.method;
                                 
-                                var method=methods.filter(function(m){return m.name==methodName});
+                                var method=methods.filter(function(m){return m.name.toLowerCase()==methodName.toLowerCase()});
                                 if (method.length==0) throw "Could not find method "+method;
+                                
                                 method=method[0];
+                                methodName=method.name;
                                 
                                         
                                         /* if there's a method specified, delete all non-required options with no command line values */
