@@ -228,7 +228,10 @@ exports.makeRunnable=function(Bot,options){
 
 					db.collection("account").find().sort({_id:1}).toArray(function(err,accounts){
 							if (optimist.argv.account_id){
-								var ids=optimist.argv.account_id.split(",");
+								
+								var ids=optimist.argv.account_id;
+								if (typeof ids=='string') ids=ids.split(",");
+								ids=ids.filter(Boolean);
 								 return callback(null,accounts.filter(function(d){return (ids.indexOf(d._id.toString())!=-1) }));
 							}
 							
@@ -257,6 +260,7 @@ exports.makeRunnable=function(Bot,options){
                 
                 getAccounts(options,function(err,accountList){
                 	if (err) throw err;
+                	console.error("Running "+Bot.metadata.bot_path+":"+Bot.metadata.submodule+" for: "+accountList.map(function(d){return d._id}).join());
                 
                 	if (!stdin.isTTY && !prompt.override.method) throw("No method specified, and not using TTY interface");
                 	
