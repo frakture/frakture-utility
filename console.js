@@ -264,7 +264,7 @@ exports.makeRunnable=function(Bot,options){
                 	if (!stdin.isTTY && !prompt.override.method) throw("No method specified, and not using TTY interface");
                 	
                 	var metadata=Bot.metadata || {bot_path:"unknown",submodule:""};
-                	console.error("Running "+metadata.bot_path+":"+metadata.submodule+" for: "+accountList.map(function(d){return d._id}).join());
+                	log("Running "+metadata.bot_path+":"+metadata.submodule+" for: "+accountList.map(function(d){return d._id}).join());
                 
                 	
                 	
