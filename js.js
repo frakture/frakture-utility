@@ -416,6 +416,16 @@ exports.addArrayFindPrototype=function(){
 	},enumerable:false
 	});
 	
+	//Find the first index in the array that matches the query
+	Object.defineProperty(Array.prototype, "findIndex", {value:function(object){
+		var func=sift(object);
+		if (func.test) func=func.test;
+		for (i=0; i<this.length; i++){if (func(this[i])) return i;}
+		return -1;
+	},enumerable:false
+	});
+	
+	
 	Object.defineProperty(Array.prototype, "find", {value:function(object){
 		return sift(object,this);
 	},enumerable:false});

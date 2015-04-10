@@ -91,6 +91,12 @@ exports.makeRunnable=function(Bot,options){
         	if (e) throw e;
         
 			prompt.override = optimist.argv;
+			//unhyphenated stuff can show up 
+			if (!optimist.argv.method && optimist.argv._.length==1){
+				prompt.override.method=optimist.argv._[0];
+			}
+			
+			
 			
 			for (i in stdInOptions){
 				//Std in can be trumped by command line
@@ -162,11 +168,11 @@ exports.makeRunnable=function(Bot,options){
 					}
 
 			   
-					if (optimist.argv.bot_id){
+					if (prompt.override.bot_id){
 						try{
-							db.collection("bot").findOne({account_id:account_id,_id:mongo.getObjectID(optimist.argv.bot_id)},function(e,bot){
+							db.collection("bot").findOne({account_id:account_id,_id:mongo.getObjectID(prompt.override.bot_id)},function(e,bot){
 								if (e) return callback(e);
-								if (!bot) return callback("Could not find bot "+optimist.argv.bot_id);
+								if (!bot) return callback("Could not find bot "+prompt.override.bot_id);
 								return callback(null,cleanBot(bot));
 							})
 						}catch(e){
@@ -227,8 +233,8 @@ exports.makeRunnable=function(Bot,options){
 					getDB(function(){
 
 					db.collection("account").find().sort({_id:1}).toArray(function(err,accounts){
-							if (optimist.argv.account_id){
-								var ids=optimist.argv.account_id;
+							if (prompt.override.account_id){
+								var ids=prompt.override.account_id;
 								if (Array.isArray(ids)) ids=ids.join(",");
 								ids=ids.split(",").filter(Boolean);
 								var a=accounts.filter(function(d){return (ids.indexOf(d._id.toString())!=-1) })
@@ -293,7 +299,7 @@ exports.makeRunnable=function(Bot,options){
                                 var methodName=result.method;
                                 
                                 var method=methods.filter(function(m){return m.name.toLowerCase()==methodName.toLowerCase()});
-                                if (method.length==0) throw "Could not find method "+method;
+                                if (method.length==0) throw "Could not find method '"+methodName+"'";
                                 
                                 method=method[0];
                                 methodName=method.name;
@@ -387,7 +393,7 @@ exports.makeRunnable=function(Bot,options){
 																				}else{
 																					console.log(d);
 																				}
-																				fs.writeFile("bot.out",JSON.stringify(d,null,4),accountCallback);
+																				fs.writeFile(process.env.FRAKTURE_HOME+"/.bot.out",JSON.stringify(d,null,4),accountCallback);
 																		});
 																	}
 																	run();
