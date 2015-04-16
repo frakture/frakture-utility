@@ -23,7 +23,7 @@ exports.getBot=function(path){
 
         var bot=new (module.parent.parent.require(path))();
         bot.account_id=process.env.FRAKTURE_ACCOUNT_ID;
-        bot.log=console.log;
+        bot.log=console.error;
         return bot;
 }
 
@@ -345,7 +345,7 @@ exports.makeRunnable=function(Bot,options){
                                                                         bot[i]=botConfig[i];
                                                                 }
                                                                 
-                                                                bot.log=console.log;
+                                                                bot.log=console.error;
                                                                 bot.progress=function(){progress.apply(this,arguments);}
                                                                 bot.warn=bot.progress;
                                                                 
