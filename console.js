@@ -384,12 +384,7 @@ exports.makeRunnable=function(Bot,options){
 																				log("*** Job complete ***");
 																			
 																				if (typeof d=='object'){
-																					if (process.stdout.isTTY){
-																						console.log(util.inspect(d,{depth:null}));
-																					}else{
-																						d.account_id=bot.account_id;
-																						console.log(JSON.stringify(d));
-																					}
+																					console.log(JSON.stringify(d,null,4));
 																				}else{
 																					console.log(d);
 																				}
