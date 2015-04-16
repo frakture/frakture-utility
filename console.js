@@ -393,12 +393,12 @@ exports.makeRunnable=function(Bot,options){
 																				}else{
 																					console.log(d);
 																				}
-																				fs.writeFile(process.env.FRAKTURE_HOME+"/.bot.out",JSON.stringify(d,null,4),accountCallback);
+																				
+																				accountCallback();
 																		});
 																	}
 																	run();
 																});
-                                                                
                                                         });
                                                 },function(err){
                                                         require("./main.js").mongo.getDB().close();

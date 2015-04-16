@@ -1,6 +1,17 @@
 var fs=require("fs"),
 sf=require("slice-file");
 
+
+/*
+To find all crappy characters in a filename, and replace them
+
+LC_ALL=C find . -name '*[! -~]*' | while read file; do N=$(echo $file | tr -cd '\11\12\40-\176'); echo mv "$file" "$N"; done
+
+LC_ALL=C find . -name '*[! -~]*' | while read file; do N=$(echo $file | tr -cd '\11\12\40-\176'); mv "$file" "$N"; done
+*/
+
+
+
 exports.mkdirp=require("mkdirp");
 
 exports.validateFilename=function(s){
@@ -24,10 +35,16 @@ exports.slice=function(options,callback){
 	var e=options.end; if (e===undefined || e==="") e=10;
 	e=parseInt(e);
 	var xs=sf(options.filename);
-	xs.slice(s,e,function(e,l){
+	function cb(e,l){
 		if (e) return callback(e);
+		xs.close();
 		return callback(null,l.map(function(d){return d.toString()}))
-	});
+	}
+	if (s<0){
+		xs.slice(s,cb);
+	}else{
+		xs.slice(s,e,cb);
+	}
 }
 
 
