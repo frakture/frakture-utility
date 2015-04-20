@@ -373,7 +373,9 @@ exports.relativeDate=function(s){
 	if (r){
 		var period=null;
 		switch(r[3]){
-			case "Y": period="years"; break;
+			case "Y":
+			case "y": period="years"; break;
+			
 			case "M": period="months"; break;
 			case "w": period="weeks"; break;
 			case "d": period="days"; break;
