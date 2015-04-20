@@ -369,7 +369,7 @@ exports.relativeDate=function(s){
 	if (!s || s=="none") return null;
 	if (typeof s.getMonth === 'function') return s;
 	
-	var r=s.match(/^([+-]{1})([0-9]+)([YMwdhms]{1})$/);
+	var r=s.match(/^([+-]{1})([0-9]+)([YyMwdhms]{1})$/);
 	if (r){
 		var period=null;
 		switch(r[3]){
