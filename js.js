@@ -353,14 +353,16 @@ gets unique array elements
 exports.getUnique=function(arr){
    var u = {}, a = [];
    for(var i = 0, l = arr.length; i < l; ++i){
-      if(u.hasOwnProperty(arr[i])) {
+   	 key = JSON.stringify(arr[i]);
+      if(u.hasOwnProperty(key)) {
          continue;
       }
       a.push(arr[i]);
-      u[arr[i]] = 1;
+      u[key] = 1;
    }
    return a;
 }
+
 
 /*
 	Function that supports relative date calculations, like "-3d" for 3 days ago, etc
@@ -495,19 +497,25 @@ function abbrNum(number, decPlaces) {
     return number;
 }
 
-exports.humanize=function(o){
+//turn numbers into abbreviated numbers, strings to shortened strings, etc
+exports.humanize=function(o,chars){
 	if (o==Infinity) return "n/a";
+	chars=chars || 100;
 	switch (typeof o){
+		case 'string': return o.slice(0,chars);
 		case 'NaN': return "n/a";
 		case 'number': return abbrNum(o,1);
 		case 'object': 
+		var n={};
 		for (i in o){
 			if (i.slice(-3)!="_id"){
-				o[i]=exports.humanize(o[i]);
+				n[i]=exports.humanize(o[i],chars);
+			}else{
+				n[i]=o[i];
 			}
 		}
 		default:
-			return o;
+			return n;
 	}
 }
 

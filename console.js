@@ -114,9 +114,11 @@ exports.makeRunnable=function(Bot,options){
 			var db=null;
 			function getDB(cb){
 				if (db!=null) return cb();
+				if (!process.env.MONGO_URI) return cb();
+				
 				require("./main.js").mongo.init(function(e,d){
 					if (e){
-						 console.error(e.stack||err);
+						 console.error(e.stack||e);
 						 process.exit(-2);
 					}
 					db=d;
@@ -228,7 +230,7 @@ exports.makeRunnable=function(Bot,options){
 		
 			function getAccounts(opts,callback){
 
-					if (opts.accounts===false) return callback(null,[{name:"All",_id:""}]);
+					if (opts.accounts===false || !process.env.MONGO_URI) return callback(null,[{name:"All",_id:""}]);
 					
 					getDB(function(){
 
@@ -396,7 +398,9 @@ exports.makeRunnable=function(Bot,options){
 																});
                                                         });
                                                 },function(err){
-                                                        require("./main.js").mongo.getDB().close();
+                                                		if (db){
+	                                                        require("./main.js").mongo.getDB().close();
+	                                                    }
                                                         
                                                         if (err){
                                                         	 console.error("**** There was an error during command line operation *****");
