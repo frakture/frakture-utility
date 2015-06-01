@@ -245,7 +245,7 @@ exports.makeRunnable=function(Bot,options){
 							
 							if (!stdin.isTTY) return callback("No organization specified, and not using TTY interface");
 				
-							log(accounts.map(function(a,i){return i+". " +a.name+": "+a._id}).join("\r\n"));
+							console.log(accounts.map(function(a,i){return i+". " +a.name+": "+a._id}).join("\r\n"));
 		
 							prompt.get({
 									properties:{
