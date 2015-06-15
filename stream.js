@@ -148,6 +148,8 @@ function createStream(options){
 			options.request(batch, function(){
 				writeStream.emit("end");
 			});
+		}else{
+			writeStream.emit("end");
 		}
 	});
 
