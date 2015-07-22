@@ -1,19 +1,6 @@
 /* Defines mongo connection information */
 var db={
-	isInitialized:false,
-	collection:function(a){
-		console.error("***MongoDB: Deprecated call to getDB without init having been called***");
-		console.error(new Error().stack);
-		exports.init(function(e,d){
-			if (e) throw e;
-		});
-		
-		while(!db.isInitialized){
-			require('deasync').runLoopOnce();
-		}
-	
-		return db.collection(a);
-	}
+	isInitialized:false
 };
 
 var common_mongo=require("./mongo_common.js"),

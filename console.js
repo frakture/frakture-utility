@@ -124,6 +124,7 @@ exports.makeRunnable=function(Bot,options){
 					db=d;
 					 db.on("error",function(err){
 						console.error(err.stack || err);
+						console.error("Exiting from Mongo error");
 						process.exit(-2);
 					 });
 					 return cb();
@@ -398,18 +399,27 @@ exports.makeRunnable=function(Bot,options){
 																});
                                                         });
                                                 },function(err){
-                                                		if (db){
-	                                                        require("./main.js").mongo.getDB().close();
-	                                                    }
-                                                        
-                                                        if (err){
+                                                
+                                                		if (err){
                                                         	 console.error("**** There was an error during command line operation *****");
                                                         	 if (err.stack) console.error(err.stack);
                                                         	 else console.error(util.inspect(err));
+                                                        }
+                                                        
+                                                		
+                                                    	if (err){
                                                         	 process.exit(1);
                                                         }
                                                         //use process exit, because there might be setTimeout and polling calls
                                                         process.exit();
+                                                        
+                                                        if (db){
+                                                			try{
+		                                                    	db.close();
+		                                                    }catch(e){
+		                                                    }
+	                                                    }
+
                                                 });
                                         });
             	    });
