@@ -1,4 +1,6 @@
 /* Defines mongo connection information */
+console.error("Loading frakture-utility.mongo");
+
 var db={
 	isInitialized:false
 };
@@ -18,6 +20,8 @@ exports.init=function(callback){
 	if (db.isInitialized) return callback(null,db);
 	var uri=process.env.MONGO_URI;
 	
+	console.error("Connecting to mongo db");
+	
 	mongodb.MongoClient.connect(uri,{auto_reconnect:true,maxPoolSize:10},function(err,d){
 		if (err){
 			return callback(err);
@@ -26,19 +30,14 @@ exports.init=function(callback){
 			db[i]=d[i];
 		}
 		db.isInitialized=true;
+		console.error("Completed connecting to Mongo DB");
 		
 		callback(null,d);
 	});
 }
 
-/*
-	There are some legacy synchronous calls to get a database connection synchronously.  Thus the need for Fibers/sleep
-*/
-
-exports.getDB=function(callback){
-	if (!process.env.MONGO_URI){
-		return callback("MONGO_URI environment variable is required");
-	}
+exports.getDB=function(){
+	if (!process.env.MONGO_URI){ throw("MONGO_URI environment variable is required");}
 	return db;
 }
 
