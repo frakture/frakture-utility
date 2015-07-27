@@ -1,6 +1,4 @@
 /* Defines mongo connection information */
-console.error("Loading frakture-utility.mongo");
-
 var db={
 	isInitialized:false
 };
@@ -8,7 +6,10 @@ var db={
 var common_mongo=require("./mongo_common.js"),
 mongodb=require('mongodb'),js=require("./js.js"),
 async=require("async"),
+debug=require("debug")("frakture-utility.mongo-debug"),
 mysql=require("./mysql.js");
+
+debug("Loading frakture-utility.mongo");
 
 for (i in common_mongo){exports[i]=common_mongo[i];}
 
@@ -20,7 +21,7 @@ exports.init=function(callback){
 	if (db.isInitialized) return callback(null,db);
 	var uri=process.env.MONGO_URI;
 	
-	console.error("Connecting to mongo db");
+	debug("Connecting to mongo db");
 	
 	mongodb.MongoClient.connect(uri,{auto_reconnect:true,maxPoolSize:10},function(err,d){
 		if (err){
@@ -30,14 +31,14 @@ exports.init=function(callback){
 			db[i]=d[i];
 		}
 		db.isInitialized=true;
-		console.error("Completed connecting to Mongo DB");
+		debug("Completed connecting to Mongo DB");
 		
 		callback(null,d);
 	});
 }
 
 exports.getDB=function(){
-	if (!process.env.MONGO_URI){ throw("MONGO_URI environment variable is required");}
+	if (!process.env.MONGO_URI){ throw new Error("MONGO_URI environment variable is required");}
 	return db;
 }
 
