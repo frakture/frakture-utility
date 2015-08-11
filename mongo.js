@@ -9,7 +9,7 @@ async=require("async"),
 debug=require("debug")("frakture-utility.mongo-debug"),
 mysql=require("./mysql.js");
 
-debug("Loading frakture-utility.mongo");
+debug("Loading frakture-utility.mongo at ");
 
 for (i in common_mongo){exports[i]=common_mongo[i];}
 
@@ -46,11 +46,13 @@ exports.getDB=function(){
 
 exports.ObjectID=mongodb.ObjectID;
 
-exports.getObjectID=function(v){
+exports.getObjectID=function(v,allowStrings){
+	if (allowStrings) return (typeof v=='string' && v.length==24)?mongodb.ObjectID.createFromHexString(v):v;
 	return (typeof v=='string')?mongodb.ObjectID.createFromHexString(v):v;
 }
 
 exports.getObjectId=exports.getObjectID;
+
 
 
 exports.convertOid=function(o){

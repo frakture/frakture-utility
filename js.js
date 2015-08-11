@@ -229,6 +229,59 @@ exports.safeEval=function(script,callback){
 	}
 }
 
+
+
+/*
+	
+	Safely evaluate a function against an input object, returning null if there's no function specified, or the results of the function
+	
+*/
+	
+exports.safeFunctionEval=function(functionString,input,callback){
+		//Process functions
+		var f=functionString;
+		if (typeof functionString=='function'){
+			f=functionString.toString();
+		}else if (functionString._bsontype=='Code'){
+			//Stupid bson "CODE" type :(
+			f=functionString.code;
+		}
+		
+		if (functionString){
+			//Bug fix -- unicode line feeds do not get handled well -- replace with \r
+			var stringInput=JSON.stringify(input).replace(/\u2028/gm,"\\r");
+			
+			var e="var input="+stringInput+";";
+			//debug("Running options function with keys "+JSON.stringify(Object.keys(input)));
+			
+			e+="var func="+f+"; var output=null; try{output=func(input);}catch(e){throw new Error(e);}";
+			
+			utilities.js.safeEval(e,function(err,data){
+				if (err){
+					 debug("Error executing string function, with input:");
+					 debug(util.inspect(input));
+					 debug(f);
+					 err.message="Bad options string function: "+err.message;
+					 return callback(err);
+				}
+				
+				//Could be false -- bot's a valid response.  Just can't be undefined!!
+				if (data.output==undefined) return callback("String function error -- no values were returned from the string function");
+				debug("Completed string function, returning output with keys "+((typeof data.output=='object')?JSON.stringify(Object.keys(data.output)):data.output));
+				callback(null,data.output);
+			});
+		}else{
+			debug("No function, returning input");
+			callback(null,null);
+		}
+}
+
+
+
+
+
+
+
 exports.escapeRegExp= function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
 };
@@ -387,9 +440,12 @@ exports.relativeDate=function(s){
 		}
 		var d=moment().subtract(parseInt(r[2]),period)
 		if (r[1]=="+") d=moment().add(parseInt(r[2]),period)
+		if (d.toDate()=='Invalid Date') throw "Invalid date configuration:"+r;
 		return d.toDate();
 	}else{
-		return moment.utc(s).toDate();
+		var r=moment.utc(new Date(s)).toDate();
+		if (r=='Invalid Date') throw "Invalid Date: "+s;
+		return r;
 	}
 }
 
