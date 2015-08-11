@@ -343,6 +343,10 @@ exports.getSQLString=function(o,timeZone){
 	  });
 };
 
+exports.escapeValue=function(v){
+	return mysql.escape(v,false);
+};
+
 exports.escapeId=mysql.escapeId;
 
 /*
