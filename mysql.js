@@ -119,7 +119,17 @@ exports.batchQuery=function(query,fields, eachQueryCallback, allCompleteCallback
 */
 exports.getType=function(options){
 	var a=options;
-	switch(a.type){
+
+	/* If there's a sql_type, return it */
+	if (a.sql_type){
+		var r=a.sql_type;
+		if (r.toUpperCase().indexOf("DECIMAL")==0) return "DECIMAL(19,4)";
+		return r;
+	}
+	
+	var type=(a.data_type||"").toLowerCase();
+	
+	switch(type){
 			case 'integer':
 					if (a.max && a.min!==undefined && a.max<=127 && a.min>-127){ return "TINYINT"; break;}
 					if (a.max && a.min!==undefined && a.max<=2147483647 && a.min>-2147483647){ return "INT"; break;}
@@ -128,18 +138,21 @@ exports.getType=function(options){
 				return "FLOAT"; break;
 			case 'date':
 				return "DATETIME";break;
-			
+			case 'decimal':
+				return "DECIMAL"; break;
+				
 			case 'string':
+			
 			default:
 				 if (a.value_counts){
-						 return "ENUM('"+a.value_counts.map(function(v){return v.label.replace(/'/g,"''")}).join("','")+"')";
-					}else if (a.max_length && a.max_length==a.min_length){
-						return "CHAR("+a.max_length+")";
-					}else if (a.max_length){
-						return "VARCHAR("+a.max_length+")";
-					}else{
-						return "TEXT";
-					}
+					 return "ENUM('"+a.value_counts.map(function(v){return v.label.replace(/'/g,"''")}).join("','")+"')";
+				}else if (a.max_length && a.max_length==a.min_length){
+					return "CHAR("+a.max_length+")";
+				}else if (a.max_length){
+					return "VARCHAR("+a.max_length+")";
+				}else{
+					return "TEXT";
+				}
 		}
 }
 
@@ -344,7 +357,7 @@ exports.getSQLString=function(o,timeZone){
 };
 
 exports.escapeValue=function(v){
-	return mysql.escape(v,false);
+	return mysql.escape(v);
 };
 
 exports.escapeId=mysql.escapeId;
