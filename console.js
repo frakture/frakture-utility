@@ -366,13 +366,9 @@ exports.makeRunnable=function(Bot,options){
                                                         		getDB(function(e){
                                                         			if (e) return callback(e);
 																	function run(){
-																		bot[methodName](options,function(err,d,progress,update){
+																		bot[methodName](options,function(err,d,update){
 																				if (err) return accountCallback(err);
-																			
-																				if (progress){
-																					console.error("*** WARNING! PROGRESS CALLBACKS ARE DEPRECATED *** ");
-																					return console.log(progress);
-																				}
+																				
 																				if (update){
 																					var timeout=5000;
 																					if (update.start_after_timestamp){
