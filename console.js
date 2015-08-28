@@ -231,7 +231,7 @@ exports.makeRunnable=function(Bot,options){
 		
 			function getAccounts(opts,callback){
 
-					if (opts.accounts===false || !process.env.MONGO_URI) return callback(null,[{name:"All",_id:""}]);
+					if (opts.accounts===false || !process.env.MONGO_URI) return callback(null,[{name:"All",_id:options.account_id ||""}]);
 					
 					getDB(function(){
 
