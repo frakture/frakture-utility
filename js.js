@@ -424,7 +424,7 @@ exports.relativeDate=function(s){
 	if (!s || s=="none") return null;
 	if (typeof s.getMonth === 'function') return s;
 	
-	var r=s.match(/^([+-]{1})([0-9]+)([YyMwdhms]{1})$/);
+	var r=s.match(/^([+-]{1})([0-9]+)([YyMwdhms]{1})([.a-z]*)$/);
 	if (r){
 		var period=null;
 		switch(r[3]){
@@ -441,6 +441,13 @@ exports.relativeDate=function(s){
 		var d=moment().subtract(parseInt(r[2]),period)
 		if (r[1]=="+") d=moment().add(parseInt(r[2]),period)
 		if (d.toDate()=='Invalid Date') throw "Invalid date configuration:"+r;
+		if (r[4]){
+			var opts=r[4].split(".").filter(Boolean);
+			if (opts[0]=="start") d=d.startOf(opts[1]||"day");
+			else if (opts[0]=="end") d=d.endOf(opts[1]||"day");
+			else throw "Invalid relative date,unknown options:"+r[4]
+		}
+		
 		return d.toDate();
 	}else{
 		var r=moment.utc(new Date(s)).toDate();
