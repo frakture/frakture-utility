@@ -420,9 +420,15 @@ exports.getUnique=function(arr){
 /*
 	Function that supports relative date calculations, like "-3d" for 3 days ago, etc
 */
-exports.relativeDate=function(s){
+exports.relativeDate=function(s,initialDate){
 	if (!s || s=="none") return null;
 	if (typeof s.getMonth === 'function') return s;
+	
+	if (initialDate){
+		initialDate=new Date(initialDate);
+	}else{
+		initialDate=new Date();
+	}
 	
 	var r=s.match(/^([+-]{1})([0-9]+)([YyMwdhms]{1})([.a-z]*)$/);
 	if (r){
@@ -438,8 +444,13 @@ exports.relativeDate=function(s){
 			case "m": period="minutes"; break;
 			case "s": period="seconds"; break;
 		}
-		var d=moment().subtract(parseInt(r[2]),period)
-		if (r[1]=="+") d=moment().add(parseInt(r[2]),period)
+		var d=moment.utc(initialDate);
+		
+		if (r[1]=="+"){
+			 d=d.add(parseInt(r[2]),period)
+		}else{
+			d=d.subtract(parseInt(r[2]),period)
+		}
 		if (d.toDate()=='Invalid Date') throw "Invalid date configuration:"+r;
 		if (r[4]){
 			var opts=r[4].split(".").filter(Boolean);
