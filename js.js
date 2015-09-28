@@ -621,6 +621,10 @@ exports.msdate=function(n,ignoreTimezone){
 	return returnDateTime.toString().substr(0,20);
 }
 
+exports.fromMSDate=function(date){
+  return new Date(Math.round((Number(date) - 25569)*86400*1000));
+}
+
 
 
 
