@@ -20,7 +20,9 @@ exports.format=function(n,s){
 //Unformat numbers
 exports.unformat=function(n){
 	if(!n) return n;
-	if (typeof n!='object') return numeral(n).unformat();
+	if (typeof n=='number') return n;
+	if (typeof n=='string') return parseFloat(n.replace(/[^0-9.-]/g,""))
+	if (typeof n!='object') return null;
 	var o={};
 	for (i in n){
 		o[i]=exports.unformat(n[i]);
