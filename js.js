@@ -258,7 +258,7 @@ exports.safeFunctionEval=function(functionString,input,callback){
 			
 			e+="var func="+f+"; var output=null; try{output=func(input);}catch(e){throw new Error(e);}";
 			
-			utilities.js.safeEval(e,function(err,data){
+			exports.safeEval(e,function(err,data){
 				if (err){
 					 debug("Error executing string function, with input:");
 					 debug(util.inspect(input));

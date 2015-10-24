@@ -4,16 +4,15 @@ var db={
 };
 
 var common_mongo=require("./mongo_common.js"),
-mongodb=require('mongodb'),js=require("./js.js"),
-async=require("async"),
+	mongodb=null,
+js=require("./js.js"),
 debug=require("debug")("frakture-utility.mongo-debug"),
 mysql=require("./mysql.js");
-
-debug("Loading frakture-utility.mongo at ");
 
 for (i in common_mongo){exports[i]=common_mongo[i];}
 
 exports.init=function(callback){
+
 	if (!process.env.MONGO_URI){
 		return callback("MONGO_URI environment variable is required");
 	}
@@ -23,6 +22,7 @@ exports.init=function(callback){
 	
 	debug("Connecting to mongo db");
 	
+	if (!mongodb) mongodb=require('mongodb');
 	mongodb.MongoClient.connect(uri,{auto_reconnect:true,maxPoolSize:10},function(err,d){
 		if (err){
 			return callback(err);
@@ -44,9 +44,12 @@ exports.getDB=function(){
 
 /* For legacy reasons, have to make this a synchronous call */
 
-exports.ObjectID=mongodb.ObjectID;
+exports.ObjectID=function(i){
+	return require("mongodb").ObjectID(i);
+}
 
 exports.getObjectID=function(v,allowStrings){
+	if (!mongodb) mongodb=require('mongodb');
 	if (allowStrings) return (typeof v=='string' && v.length==24)?mongodb.ObjectID.createFromHexString(v):v;
 	return (typeof v=='string')?mongodb.ObjectID.createFromHexString(v):v;
 }
@@ -56,6 +59,7 @@ exports.getObjectId=exports.getObjectID;
 
 
 exports.convertOid=function(o){
+	if (!mongodb) mongodb=require('mongodb');
 	if (typeof o!='object') return o;
 	for (i in o){
 		if (!o[i]){
@@ -184,6 +188,7 @@ exports.trimLeaves=function(options,callback){
 			});
 		});
 	}
+	async=require("async");
 	async.doWhilst(trim,function(){return !!last},function(e){
 		if (e) return callback(e);
 		else return callback(null,{updated:counter});
@@ -201,6 +206,7 @@ exports.trimLeaves=function(options,callback){
 	}
 */
 exports.dereference=function(_objects,opts,callback){
+	async=require("async");
 	if (!_objects) return callback(null,null);
 	opts=opts||{};
 	if (typeof opts=='function'){ callback=opts; opts={};};
