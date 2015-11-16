@@ -68,6 +68,13 @@ exports.sortObject=function(obj) {
     return arr; // returns array
 }
 
+//Takes an object, and returns back an object with the keys sorted
+exports.sortKeys=function(obj) {
+    var o={};
+    Object.keys(obj).sort().forEach(function(d){o[d]=obj[d]})
+    return o;
+}
+
 
 //Deep extend
 //Sourced from jQuery
