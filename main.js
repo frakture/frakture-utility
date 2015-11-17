@@ -4,6 +4,7 @@ module.exports={
 	crypt:require("./crypt.js"),
 	date:require("./date.js"),
 	file:require("./file.js"),
+	handlebars:require("./handlebars.js"),
 	html:require("./html.js"),
 	js:require("./js.js"),
 	key_generator:require("./key_generator.js"),
