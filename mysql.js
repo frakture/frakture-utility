@@ -131,6 +131,10 @@ exports.getType=function(options){
 	
 	switch(type){
 			case 'integer':
+					if (a.min_length==0){
+						//No length at all means it was likely an empty string.  In this case, default to varchar(64);
+						return "VARCHAR(64)"
+					}
 					if (a.max && a.min!==undefined && a.max<=127 && a.min>-127){ return "TINYINT"; break;}
 					if (a.max && a.min!==undefined && a.max<=2147483647 && a.min>-2147483647){ return "INT"; break;}
 					return  "BIGINT"; break;
