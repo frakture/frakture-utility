@@ -109,7 +109,7 @@ exports.insertIncrementalDocument=function(doc,targetCollection,callback,killCou
 	if (typeof targetCollection=='string') targetCollection=db.collection(targetCollection);
 	
 	var name= targetCollection.collectionName;
-   var ret = db.collection("counters").findAndModify({ _id:name },{},{ $inc: { seq: 1 } },{new: true}
+   var ret = db.collection("counters").findAndModify({ _id:name },{},{ $inc: { seq: 1 } },{new: true,upsert:true}
 	   ,function(err,d){
 			if (err) return callback(err);
 			
