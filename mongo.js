@@ -118,7 +118,7 @@ exports.insertIncrementalDocument=function(doc,targetCollection,callback,killCou
 		   		d=d.value;
 		   	}
 			if (!d){
-				console.log("No sequence named "+name);
+				debug("No sequence named "+name);
 				if (killCounter>10){
 					console.error("Error inserting a "+targetCollection.collectionName+", killCounter exceeded 10.  Last error:");
 					console.error(err);
@@ -139,6 +139,7 @@ exports.insertIncrementalDocument=function(doc,targetCollection,callback,killCou
 			
 			doc._id=d.seq;
 			if (d.encoding=="base32") doc._id=utilities.js.base32.encode(d.seq);
+			debug("New _id="+doc._id);
 
 			targetCollection.save(doc,function(err){
 				if (err) return callback(err);
