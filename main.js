@@ -12,4 +12,5 @@ module.exports={
 	mysql:require("./mysql.js"),
 	stream:require("./stream.js"),
 	validation:require("./validation.js"),
+	validator:require("validator")
 }
