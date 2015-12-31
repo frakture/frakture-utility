@@ -148,12 +148,16 @@ exports.getType=function(options){
 			case 'string':
 			
 			default:
-				 if (a.value_counts){
+				//Okay, problem with the value_counts.  Right now just ignore ENUM type.  Inefficient, but less prone to problems.
+				//Probably should add a flag sometime to allow_enum
+				 if (false && a.value_counts){
 					 return "ENUM('"+a.value_counts.map(function(v){return v.label.replace(/'/g,"''")}).join("','")+"')";
 				}else if (a.max_length && a.max_length==a.min_length){
 					return "CHAR("+a.max_length+")";
 				}else if (a.max_length && a.max_length<=255){
-					return "VARCHAR("+a.max_length+")";
+					//Hmm -- strangely problematic -- may have to do with unicode.  Make them all 255
+					return "VARCHAR(255)";
+					//return "VARCHAR("+a.max_length+")";
 				}else{
 					return "TEXT";
 				}
