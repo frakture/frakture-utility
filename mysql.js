@@ -132,8 +132,8 @@ exports.getType=function(options){
 	switch(type){
 			case 'integer':
 					if (a.min_length==0){
-						//No length at all means it was likely an empty string.  In this case, default to varchar(64);
-						return "VARCHAR(64)"
+						//No length at all means it was likely an empty string.  In this case, default to varchar(255);
+						return "VARCHAR(255)"
 					}
 					if (a.max && a.min!==undefined && a.max<=127 && a.min>-127){ return "TINYINT"; break;}
 					if (a.max && a.min!==undefined && a.max<=2147483647 && a.min>-2147483647){ return "INT"; break;}
@@ -143,7 +143,7 @@ exports.getType=function(options){
 			case 'date':
 				return "DATETIME";break;
 			case 'decimal':
-				return "DECIMAL"; break;
+				return "DECIMAL(19,4)"; break;
 				
 			case 'string':
 			
@@ -152,7 +152,7 @@ exports.getType=function(options){
 					 return "ENUM('"+a.value_counts.map(function(v){return v.label.replace(/'/g,"''")}).join("','")+"')";
 				}else if (a.max_length && a.max_length==a.min_length){
 					return "CHAR("+a.max_length+")";
-				}else if (a.max_length){
+				}else if (a.max_length && a.max_length<=255){
 					return "VARCHAR("+a.max_length+")";
 				}else{
 					return "TEXT";
