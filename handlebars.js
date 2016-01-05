@@ -14,7 +14,7 @@ handlebars.registerHelper('date', function(d,format,options) {
 	 
 	 handlebars.registerHelper('format', function(a,b,c) {
 	 	if (!c) b=null;
-		 return utilities.js.format(parseFloat(a),b)}
+		 return js.format(parseFloat(a),b)}
 	);
 	 
 	 handlebars.registerHelper("json", function(context){ return JSON.stringify(context,null,4);});
