@@ -1,12 +1,16 @@
-var handlebars=require("handlebars");
+var js=require("./js.js"),
+	handlebars=require("handlebars");
 
 handlebars.registerHelper('date', function(d,format,options) {
+		console.error("d=",d,"format=",format,"options=",options);
+		
 		if (!d) return "";
-		var moment=require("moment-timezone");
+		
 		var f="MMM Do, h:mm:ss A";
 		if (typeof format=='string') f=format;
-		 return moment(d).format(f);
-	 });
+		var moment=require("moment-timezone");
+		 return moment(js.relativeDate(d)).format(f);
+	});
 	 
 	 handlebars.registerHelper('format', function(a,b,c) {
 	 	if (!c) b=null;
