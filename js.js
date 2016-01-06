@@ -309,6 +309,8 @@ exports.parseRegExp=function(o){
 				var g=o.slice(o.lastIndexOf('/')+1);
 				var re=new RegExp(r,g);
 				return re;
+			}else{
+				return new RegExp(o);
 			}
 			
 		default: return o;
