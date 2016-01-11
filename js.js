@@ -473,6 +473,7 @@ exports.relativeDate=function(s,initialDate){
 		return d.toDate();
 	}else if (s=="now"){
 		var r=moment.utc(new Date()).toDate();
+		return r;
 	}else{
 		var r=moment.utc(new Date(s)).toDate();
 		if (r=='Invalid Date') throw "Invalid Date: "+s;
