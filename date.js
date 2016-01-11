@@ -58,6 +58,8 @@ exports.checkDate=function(d){
 	if (!d) return d;
 	if (d instanceof Date) return d;
 	if (typeof d=='string'){
+		//things like 8943, 694, 21124 are really not dates.  Let's just assume they're not.
+		if (d.length<6) return d;
 		if (d.match(exports.dateRegex) || d.match(exports.dateRegexLegacy)){
 			var newDate=new Date(d);
 			if (newDate=="Invalid Date") return d;
