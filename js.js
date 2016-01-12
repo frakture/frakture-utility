@@ -1,4 +1,4 @@
-var vm = require('vm'), moment=require("moment-timezone"),numeral=require("numeral");
+var vm = require('vm'), moment=require("moment-timezone"),numeral=require("numeral"),util=require("util");
 /*
 	Useful js functions
 */
