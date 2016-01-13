@@ -205,7 +205,9 @@ exports.safeEval=function(script,callback){
 	
 	var sandbox={log:console.log};
 
-	script=script.toString();
+	script=require("strip-json-comments")(script.toString()).trim();
+	console.error(script);
+	
 	
 	var isObject=false;
 	if (script.indexOf('{')==0){
