@@ -206,7 +206,6 @@ exports.safeEval=function(script,callback){
 	var sandbox={log:console.log};
 
 	script=require("strip-json-comments")(script.toString()).trim();
-	console.error(script);
 	
 	
 	var isObject=false;
@@ -297,25 +296,30 @@ exports.escapeRegExp= function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
 };
 
-exports.parseRegExp=function(o){
-	switch(typeof o){
-		case 'object':
-			for (i in o){
-				o[i]=exports.parseRegExp(o[i]);
-			}
-			return o;
+exports.parseRegExp=function(o,id){
+	try{
+		switch(typeof o){
+			case 'object':
+				for (i in o){
+					o[i]=exports.parseRegExp(o[i],i,counter);
+				}
+				return o;
 			
-		case 'string':
-			if (o.indexOf('/')==0 && o.lastIndexOf('/')>0){
-				var r=o.slice(1,o.lastIndexOf('/'));
-				var g=o.slice(o.lastIndexOf('/')+1);
-				var re=new RegExp(r,g);
-				return re;
-			}else{
-				return new RegExp(o);
-			}
+			case 'string':
+				if (o.indexOf('/')==0 && o.lastIndexOf('/')>0){
+					var r=o.slice(1,o.lastIndexOf('/'));
+					var g=o.slice(o.lastIndexOf('/')+1);
+					var re=new RegExp(r,g);
+					return re;
+				}else{
+					return new RegExp(o);
+				}
 			
-		default: return o;
+			default:
+				return o;
+		}
+	}catch(e){
+		return o;
 	}
 }
 

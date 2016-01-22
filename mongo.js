@@ -63,9 +63,11 @@ exports.convertOid=function(o){
 	if (typeof o!='object') return o;
 	for (i in o){
 		if (!o[i]){
-		}else if (typeof o[i]=='object' && o[i]["$oid"]){ o[i]=mongodb.ObjectID.createFromHexString(o[i]["$oid"]);
-		}else{ 
-		o[i]=exports.convertOid(o[i]);}
+		}else if (typeof o[i]=='object' && o[i]["$oid"]){
+			o[i]=mongodb.ObjectID.createFromHexString(o[i]["$oid"]);
+		}else{
+			o[i]=exports.convertOid(o[i]);
+		}
 	}
 	return o;
 }
