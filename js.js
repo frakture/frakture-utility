@@ -229,7 +229,9 @@ exports.safeEval=function(script,callback){
 		return callback(correctedError);
 	}
 	delete sandbox.log;
-	if (isObject) result=sandbox.value;
+	
+	//I think there's a scoping issue here, so go to string and back.  safeEval shouldn't have to deal with non-json results.
+	if (isObject) result=JSON.parse(JSON.stringify(sandbox.value));
 	else result=sandbox;
 
 	if (callback){
@@ -502,6 +504,8 @@ function dateFunctionReviver(key, value) {
 };
 
 var sift=require("sift");
+
+exports.sift=sift;
 
 /* Extensions to Arrays to allow for find and findOne methods, leveraging mongoc */
 exports.addArrayFindPrototype=function(){
