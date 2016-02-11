@@ -140,7 +140,7 @@ exports.insertIncrementalDocument=function(doc,targetCollection,callback,killCou
 			}
 			
 			doc._id=d.seq;
-			if (d.encoding=="base32") doc._id=utilities.js.base32.encode(d.seq);
+			if (d.encoding=="base32") doc._id=js.base32.encode(d.seq);
 			debug("New _id="+doc._id);
 
 			targetCollection.save(doc,function(err){

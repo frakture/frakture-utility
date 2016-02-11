@@ -1,3 +1,4 @@
+var js=require("./js.js");
 /*
         generate start and end date array for perfectly inclusive UTC queries
         options{
@@ -16,9 +17,15 @@
 */
 
 exports.generateInclusiveArray=function(options){
-        var start=options.start;
-        if (start=="Invalid Date") throw "Invalid start:"+options.start;
+        var start=js.relativeDate(options.start);
+        if (!start || start=="Invalid Date") throw "Invalid start:"+options.start;
+        var final=js.relativeDate(options.end||"now");
+        if (start>=final) return [];
+        
+        
         var end;
+        options.split=options.split || "day";
+        
         switch(options.split){
                 case "day":
                 case "week":
@@ -28,7 +35,7 @@ exports.generateInclusiveArray=function(options){
                 default:
                 end=new Date(Date.UTC(start.getFullYear(),start.getMonth()+1,1));
         }
-        var final=new Date(options.end);
+        
         var res=[];
         while (end<final){
                 res.push({start:start,end:new Date(end.getTime()-1)});
