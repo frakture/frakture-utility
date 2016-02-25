@@ -170,7 +170,7 @@ exports.getType=function(options){
 var isoRegex=/[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]{12}Z/;
 
 exports.convertISO8601ToSQL=function(s){
-	if (s && s.length==24 && (typeof s=='string') && s.match(isoRegex)) return s.slice(0,23);
+	if (s && s.length==24 && (typeof s=='string') && s.match(isoRegex)) return s.slice(0,23).replace(/t/i," ");
 	return s;
 }
 

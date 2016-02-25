@@ -377,6 +377,28 @@ exports.bool=function (x,defaultVal){
 	return !!(y.indexOf('y')+1) || !!(y.indexOf('t')+1)
 }
 
+exports.matchesFilter=function (filter,data){
+	//if no filter, everything matches!
+	if (!filter || filter=="*") return true;
+	
+	data=data || {};
+	if (typeof filter=="string"){
+		try{
+		 filter=JSON.parse(filter);
+		 }catch(e){
+		 	try{
+		   		filter=exports.safeEval(filter);
+		   	}catch(e){
+		   		throw "Invalid filter:'"+filter+"'";
+		   	}
+		 }
+		 if (!filter) throw "Invalid filter:"+filter;
+	}
+	var func=sift(filter);
+	if (func.test) func=func.test;
+	if (func(data)) return true;
+	else return false;
+}
 
 
 
