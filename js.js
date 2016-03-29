@@ -17,6 +17,24 @@ exports.format=function(n,s){
 	return o;
 }
 
+exports.reduceObject=function(a,b){
+	var o=a;
+	for (i in b){
+		var v=b[i];
+		if (!o[i]){
+		 o[i]=b[i];
+		 continue;
+		}
+		
+		if (typeof v=='number' && typeof o[i]=='number'){
+			o[i]=o[i]+v;
+			continue;
+		}
+		o[i]=[].concat(o[i],v);
+	}
+	return o;
+}
+
 //Unformat numbers
 exports.unformat=function(n){
 	if(!n) return n;
