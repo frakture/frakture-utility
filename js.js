@@ -35,6 +35,19 @@ exports.reduceObject=function(a,b){
 	return o;
 }
 
+/*
+	Filter down to just the sum of the numbers, no strings or objects  Remember to call reduce with the second argument as "{}", because single element reduce will never call this function
+*/
+exports.reduceNumbers=function(a,b){
+	var o=a;
+	for (i in b){
+		var v=b[i] ||0;
+		if (typeof v!='number') continue;
+		o[i]=(o[i]||0)+v;
+	}
+	return o;
+}
+
 //Unformat numbers
 exports.unformat=function(n){
 	if(!n) return n;
