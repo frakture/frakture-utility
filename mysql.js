@@ -127,6 +127,10 @@ exports.getType=function(options){
 		return r;
 	}
 	
+	/* overrides for well known types */
+	if (a.name=="phone") return "VARCHAR(24)";
+	if (a.name=="postal_code") return "VARCHAR(16)";
+	
 	var type=(a.data_type||"").toLowerCase();
 	
 	switch(type){
