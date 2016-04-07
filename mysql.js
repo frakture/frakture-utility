@@ -130,6 +130,7 @@ exports.getType=function(options){
 	/* overrides for well known types */
 	if (a.name=="phone") return "VARCHAR(24)";
 	if (a.name=="postal_code") return "VARCHAR(16)";
+	if (a.name=="amount") return "DECIMAL(10,2)";
 	
 	var type=(a.data_type||"").toLowerCase();
 	

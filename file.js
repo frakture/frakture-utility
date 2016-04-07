@@ -1,5 +1,6 @@
 var fs=require("fs"),
-sf=require("slice-file");
+sf=require("slice-file"), 
+debug=require("debug")("frakture-utility.file");
 
 
 /*
@@ -34,16 +35,26 @@ exports.slice=function(options,callback){
 	var s=parseInt(options.start || 0);
 	var e=options.end; if (e===undefined || e==="") e=10;
 	e=parseInt(e);
-	var xs=sf(options.filename);
-	function cb(e,l){
-		if (e) return callback(e);
-		xs.close();
-		return callback(null,l.map(function(d){return d.toString()}))
-	}
-	if (s<0){
-		xs.slice(s,cb);
-	}else{
-		xs.slice(s,e,cb);
+	try{
+		var xs=sf(options.filename);
+		xs.on("error",function(e){
+			callback.isCalled=true;
+			return callback(e);
+		});
+		
+		function cb(e,l){
+			if (callback.isCalled) return;
+			if (e) return callback(e);
+			xs.close();
+			return callback(null,l.map(function(d){return d.toString()}))
+		}
+		if (s<0){
+			xs.slice(s,cb);
+		}else{
+			xs.slice(s,e,cb);
+		}
+	}catch(e){
+		return callback(e);
 	}
 }
 
