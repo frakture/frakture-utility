@@ -330,6 +330,7 @@ exports.escapeRegExp= function(s) {
 };
 
 exports.parseRegExp=function(o,id){
+	if (o instanceof RegExp) return o;
 	try{
 		switch(typeof o){
 			case 'object':
