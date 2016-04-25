@@ -409,6 +409,16 @@ exports.bool=function (x,defaultVal){
 	return !!(y.indexOf('y')+1) || !!(y.indexOf('t')+1)
 }
 
+var lower=/[^a-z0-9]/g;
+
+exports.lowerCaseObject=function(d){
+	var o={};
+	for (i in d){
+		var k=i.toLowerCase().replace(lower,"");
+		o[k]=d[i];
+	}
+	return o;
+}
 exports.matchesFilter=function (filter,data){
 	//if no filter, everything matches!
 	if (!filter || filter=="*") return true;
