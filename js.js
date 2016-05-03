@@ -227,14 +227,27 @@ exports.extendDistinct=function(a,b){
 	Safe eval takes either a string of operations to run on a sandbox, which is then returned.
 	
 	Alternatively, if passed an object (string that starts with '{') it will return the eval'd version of that string
+	
+	context is optional second attribute that is an object of context items.
+	
+	
 */
-exports.safeEval=function(script,callback){
+exports.safeEval=function(script,context,callback){
+	if (typeof context!='object'){
+		callback=context;
+		context=null;
+	}
+	
 	if (!script){
 		if (!callback) throw "No content to eval";
 		return callback("No content to eval");
 	}
 	
 	var sandbox={log:console.log};
+	
+	if (context){
+		for (i in context) sandbox[i]=context[i];
+	}
 
 	script=require("strip-json-comments")(script.toString()).trim();
 	
@@ -662,9 +675,11 @@ function abbrNum(number, decPlaces) {
 //turn numbers into abbreviated numbers, strings to shortened strings, etc
 exports.humanize=function(o,chars){
 	if (o==Infinity) return "n/a";
-	chars=chars || 100;
+	chars=chars || 200;
 	switch (typeof o){
-		case 'string': return o.slice(0,chars);
+		case 'string': 
+		if (o.length>chars){return o.slice(0,chars)+"...";}
+		else return o;
 		case 'NaN': return "n/a";
 		case 'number': return abbrNum(o,1);
 		case 'object': 
