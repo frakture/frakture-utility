@@ -342,7 +342,7 @@ exports.escapeRegExp= function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
 };
 
-exports.parseRegExp=function(o,id){
+exports.parseRegExp=function(o,opts){
 	if (o instanceof RegExp) return o;
 	try{
 		switch(typeof o){
@@ -356,10 +356,11 @@ exports.parseRegExp=function(o,id){
 				if (o.indexOf('/')==0 && o.lastIndexOf('/')>0){
 					var r=o.slice(1,o.lastIndexOf('/'));
 					var g=o.slice(o.lastIndexOf('/')+1);
-					var re=new RegExp(r,g);
+					var flags=exports.getUnique((g+(opts||"")).split("")).join("")
+					var re=new RegExp(r,flags);
 					return re;
 				}else{
-					return new RegExp(o);
+					return new RegExp(o,opts||"");
 				}
 			
 			default:
@@ -677,22 +678,25 @@ exports.humanize=function(o,chars){
 	if (o==Infinity) return "n/a";
 	chars=chars || 200;
 	switch (typeof o){
+		case 'boolean':
+			return o;
 		case 'string': 
 		if (o.length>chars){return o.slice(0,chars)+"...";}
 		else return o;
 		case 'NaN': return "n/a";
 		case 'number': return abbrNum(o,1);
 		case 'object': 
-		var n={};
-		for (i in o){
-			if (i.slice(-3)!="_id"){
-				n[i]=exports.humanize(o[i],chars);
-			}else{
-				n[i]=o[i];
+			var n={};
+			for (i in o){
+				if (i.slice(-3)!="_id"){
+					n[i]=exports.humanize(o[i],chars);
+				}else{
+					n[i]=o[i];
+				}
 			}
-		}
-		default:
 			return n;
+		default:
+			return o;
 	}
 }
 
