@@ -6,17 +6,21 @@ handlebars.registerHelper('date', function(d,format,options) {
 		
 		if (!d) return "";
 		
-		var f="MMM Do, h:mm:ss A";
-		if (typeof format=='string') f=format;
 		var moment=require("moment-timezone");
-		 return moment(js.relativeDate(d)).format(f);
+		var date=moment(js.relativeDate(d));
+		
+		if (typeof format=='string'){
+			 return date.format(format);
+		}else{
+			return date.toISOString()
+		}
 	});
 	 
 	 handlebars.registerHelper('format', function(a,b,c) {
 	 	if (!c) b=null;
 		 return js.format(parseFloat(a),b)}
 	);
-	 
+	
 	 handlebars.registerHelper("json", function(context){ return JSON.stringify(context,null,4);});
 	 
 	 handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
