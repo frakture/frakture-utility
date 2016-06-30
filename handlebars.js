@@ -21,6 +21,18 @@ handlebars.registerHelper('date', function(d,format,options) {
 		 return js.format(parseFloat(a),b)}
 	);
 	
+	 handlebars.registerHelper('slice', function(s,format,options) {
+	 	  if (!s) return "";
+	 	  s=s+'';
+	 	  if (!format) return s;
+	 	  format=format+'';
+	 	  var a=format.split(",").map(d=>d.trim());
+	 	  if (a.length==1) return s.slice(parseInt(a[0]))
+	 	  if (a.length>2) return "Invalid slice: "+format;
+	 	  return s.slice(parseInt(a[0]),parseInt(a[1]));
+	 	 }
+	);
+	
 	 handlebars.registerHelper("json", function(context){ return JSON.stringify(context,null,4);});
 	 
 	 handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
