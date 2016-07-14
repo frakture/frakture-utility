@@ -679,6 +679,8 @@ exports.humanize=function(o,chars){
 	if (o==Infinity) return "n/a";
 	chars=chars || 200;
 	switch (typeof o){
+		case 'function':
+			return "[Function]";
 		case 'boolean':
 			return o;
 		case 'string': 
