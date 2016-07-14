@@ -357,6 +357,7 @@ exports.getSQLString=function(o,timeZone){
 	if (o.sql.indexOf('?')<0) return o.sql;
 	
 	//Coped from mysql lib SQLString
+	o.values=o.values || [];
 	o.values = [].concat(o.values);
 
 	 return o.sql.replace(/\?/g, function(match) {
