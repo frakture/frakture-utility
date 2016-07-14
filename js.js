@@ -675,6 +675,7 @@ function abbrNum(number, decPlaces) {
 
 //turn numbers into abbreviated numbers, strings to shortened strings, etc
 exports.humanize=function(o,chars){
+	try{
 	if (o==Infinity) return "n/a";
 	chars=chars || 200;
 	switch (typeof o){
@@ -697,6 +698,10 @@ exports.humanize=function(o,chars){
 			return n;
 		default:
 			return o;
+	}
+	}catch(e){
+		console.error("Could not humanize object:",o);
+		return "err!";
 	}
 }
 
