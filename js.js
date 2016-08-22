@@ -360,7 +360,7 @@ exports.parseRegExp=function(o,opts){
 					var re=new RegExp(r,flags);
 					return re;
 				}else{
-					return new RegExp(o,opts||"");
+					return new RegExp(o,opts||"i");
 				}
 			
 			default:

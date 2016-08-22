@@ -1,10 +1,15 @@
 var js=require("./js.js"),
 	handlebars=require("handlebars");
+	
+handlebars.registerHelper("inc", function(value, options){
+    return parseInt(value) + 1;
+});
 
 handlebars.registerHelper('date', function(d,format,options) {
 		console.error("d=",d,"format=",format,"options=",options);
 		
 		if (!d) return "";
+		if (typeof d!='string') throw "Not a string:"+typeof d+" : "+JSON.stringify(d);
 		
 		var moment=require("moment-timezone");
 		var date=moment(js.relativeDate(d));
