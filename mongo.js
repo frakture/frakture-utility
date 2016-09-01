@@ -6,7 +6,7 @@ var db={
 var common_mongo=require("./mongo_common.js"),
 	mongodb=null,
 js=require("./js.js"),
-debug=require("debug")("frakture-utility.mongo-debug"),
+debug=require("debug")("mongo-debug"),
 mysql=require("./mysql.js");
 
 for (i in common_mongo){exports[i]=common_mongo[i];}
