@@ -789,6 +789,17 @@ exports.getIntArray=function(s,nonZeroLength){
 	return a;
 }
 
+exports.getStringArray=function(s,nonZeroLength){
+	var a=s || [];
+	if (typeof a=='string') a=[a];
+
+	if (typeof s=='string') a=s.split(",");
+	a=a.map(s=>s.trim()).filter(Boolean);
+	if (nonZeroLength && a.length==0) a=[0];
+	return a;
+}
+
+
 /* 
 	Microsoft date functions -- a number which is the count of days since some specific date.  Grr.
 */
