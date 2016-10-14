@@ -105,14 +105,15 @@ exports.safeSet=function(update){
 	for (i in s){
 		if (!Array.isArray(s[i]) && !(Object.prototype.toString.call(s[i]) === '[object Date]') && typeof s[i]=='object'){
 			for (j in s[i]){
-				s[i+"."+j]=s[i][j];
+				//replace all dollar signs and dots in keys below this one
+				s[i+"."+j]=exports.escapeMongo(s[i][j]);
 			}
 			delete s[i];
 		}
 	}
-	//replace all dollar signs in keys
+
 	
-	return {$set:exports.escapeMongo(s)};
+	return {$set:s};
 }
 
 
