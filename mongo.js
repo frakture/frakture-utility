@@ -86,7 +86,15 @@ exports.convertDate=function(o){
 }
 
 
-
+exports.escapeMongo=function(d){
+	if (typeof d!='object') return d;
+	var o=Array.isArray(d)?[]:{};
+	for (i in d){
+		o[i.replace(/\$/g, '\uFF04')
+            .replace(/\./g, '\uFF0E')]=exports.escapeMongo(d[i]);
+	}
+	return o;
+}
 
 //Create a suitable '$set' object that doesn't clobber sub objects
 //Currently only goes 1 level deep
@@ -102,7 +110,9 @@ exports.safeSet=function(update){
 			delete s[i];
 		}
 	}
-	return {$set:s};
+	//replace all dollar signs in keys
+	
+	return {$set:exports.escapeMongo(s)};
 }
 
 
