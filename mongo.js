@@ -87,7 +87,7 @@ exports.convertDate=function(o){
 
 
 exports.escapeMongo=function(d){
-	if (typeof d!='object' || (Object.prototype.toString.call(s[i]) === '[object Date]')) return d;
+	if (typeof d!='object' || (Object.prototype.toString.call(d) === '[object Date]')) return d;
 	var o=Array.isArray(d)?[]:{};
 	for (i in d){
 		o[i.replace(/\$/g, '\uFF04')
