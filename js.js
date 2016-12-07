@@ -615,6 +615,7 @@ exports.addArrayFindPrototype=function(){
 	
 	
 	Object.defineProperty(Array.prototype, "find", {value:function(object){
+		if (typeof object=='function') return this.filter(object)[0];
 		return sift(object,this);
 	},enumerable:false});
 	/* Provides a distinct set based on the string value */
