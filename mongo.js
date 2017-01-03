@@ -3,11 +3,11 @@ var db={
 	isInitialized:false
 };
 
-var common_mongo=require("./mongo_common.js"),
+var 
+	common_mongo=require("./mongo_common.js"),
 	mongodb=null,
-js=require("./js.js"),
-debug=require("debug")("mongo-debug"),
-mysql=require("./mysql.js");
+	js=require("./js.js"),
+debug=require("debug")("mongo-debug");
 
 for (i in common_mongo){exports[i]=common_mongo[i];}
 

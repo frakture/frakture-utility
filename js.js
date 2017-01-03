@@ -1,14 +1,19 @@
-var vm = require('vm'), moment=require("moment-timezone"),numeral=require("numeral"),util=require("util");
+var vm = require('vm'),
+	util=require("util");
+
 /*
 	Useful js functions
 */
 
 
+/* Returns number of millis since last time this was called */
 var last=new Date().getTime();
 exports.timer=function(l){
 	var t=new Date().getTime();
 	//console.error(l,last-t);
+	var l=t-last;
 	last=t;
+	return l;
 }
 
 //Format numbers, also accepts object of numbers
@@ -16,7 +21,7 @@ exports.format=function(n,s){
 	if (typeof n!='object'){
 		//only format numbers
 		if(parseFloat(n)!=n) return n;
-		 return numeral(n).format(s);
+		 return require("numeral")(n).format(s);
 	}
 	var o={};
 	for (i in n){
@@ -536,6 +541,7 @@ exports.relativeDate=function(s,initialDate){
 	}
 	
 	var r=s.match(/^([+-]{1})([0-9]+)([YyMwdhms]{1})([.a-z]*)$/);
+	var moment=require("moment-timezone");
 	if (r){
 		var period=null;
 		switch(r[3]){
@@ -549,6 +555,7 @@ exports.relativeDate=function(s,initialDate){
 			case "m": period="minutes"; break;
 			case "s": period="seconds"; break;
 		}
+		
 		var d=moment.utc(initialDate);
 		
 		if (r[1]=="+"){
