@@ -55,8 +55,10 @@ exports.getObjectID=function(v,allowStrings){
 		if (allowStrings) return (typeof v=='string' && v.length==24)?mongodb.ObjectID.createFromHexString(v):v;
 		return (typeof v=='string')?mongodb.ObjectID.createFromHexString(v):v;
 	}catch(e){
-		console.error(e);
-		return v;
+		console.error("MongoError parsing value ",v,e);
+		throw e;
+		//return v;
+		
 	}
 }
 
