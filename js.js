@@ -418,6 +418,17 @@ exports.dezero = function(o,ignore) {
 	return o;
 };
 
+exports.truthify = function(o) {
+	if (typeof o=='object'){
+		for (i in o){
+			if (!o[i])  delete o[i];
+			exports.truthify(o[i]);
+		}
+	}
+	return o;
+};
+
+
 
 
 
