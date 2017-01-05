@@ -49,9 +49,15 @@ exports.ObjectID=function(i){
 }
 
 exports.getObjectID=function(v,allowStrings){
-	if (!mongodb) mongodb=require('mongodb');
-	if (allowStrings) return (typeof v=='string' && v.length==24)?mongodb.ObjectID.createFromHexString(v):v;
-	return (typeof v=='string')?mongodb.ObjectID.createFromHexString(v):v;
+	//Unusual production error
+	try{
+		if (!mongodb) mongodb=require('mongodb');
+		if (allowStrings) return (typeof v=='string' && v.length==24)?mongodb.ObjectID.createFromHexString(v):v;
+		return (typeof v=='string')?mongodb.ObjectID.createFromHexString(v):v;
+	}catch(e){
+		console.error(e);
+		return v;
+	}
 }
 
 exports.getObjectId=exports.getObjectID;
