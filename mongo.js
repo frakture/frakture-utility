@@ -49,10 +49,9 @@ exports.ObjectID=function(i){
 }
 
 exports.getObjectID=function(v,allowStrings){
-	//Unusual production error
 	try{
 		if (!mongodb) mongodb=require('mongodb');
-		if (allowStrings) return (typeof v=='string' && v.length==24)?mongodb.ObjectID.createFromHexString(v):v;
+		if (allowStrings) return (typeof v=='string' && v.match(/^[a-f0-9]{24}$/i))?mongodb.ObjectID.createFromHexString(v):v;
 		return (typeof v=='string')?mongodb.ObjectID.createFromHexString(v):v;
 	}catch(e){
 		console.error("MongoError parsing value ",v,e);
