@@ -44,3 +44,8 @@ exports.md5=function(source) {
   return crypto.createHash('md5').update(source).digest('hex');
 }
 
+exports.sha1=function(source) {
+  return crypto.createHash('sha1').update(source).digest('hex');
+}
+
+
