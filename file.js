@@ -17,7 +17,7 @@ exports.mkdirp=require("mkdirp");
 
 exports.validateFilename=function(s){
 	if (s 
-		&& s.match(/^[.a-zA-Z\/_0-9:() -]+$/)
+		&& s.match(/^[.a-zA-Z\/_0-9:() -\\$]+$/)
 		&& s.indexOf("..")<0
 		){
 		return true;
