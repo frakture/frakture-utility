@@ -1,5 +1,14 @@
 var js=require("./js.js"),
 	handlebars=require("handlebars");
+
+
+handlebars.registerHelper('contains', function(s,val,options) {
+  if (!s) return options.inverse(this);
+  s=s+'';
+  if (s.indexOf(val)>=0) return options.fn(this)
+  else return options.inverse(this);
+});
+
 	
 handlebars.registerHelper("inc", function(value, options){
     return parseInt(value) + 1;
