@@ -286,11 +286,17 @@ exports.safeEval=function(script,context,callback){
 		return callback(correctedError);
 	}
 	delete sandbox.log;
+
 	
 	//I think there's a scoping issue here, so go to string and back.  safeEval shouldn't have to deal with non-json results.
+	//Unfortunately, this also clobbers any regular expressions  {email:/@/} gets clobbered here
+	//Removing right now, if example of scoping is found, change this appropriately
+	/*
 	if (isObject) result=JSON.parse(JSON.stringify(sandbox.value));
-	else result=sandbox;
-
+	else 
+	*/
+	result=sandbox;
+	
 	if (callback){
 		callback(null,result);
 	}else{
