@@ -295,7 +295,7 @@ exports.safeEval=function(script,context,callback){
 	if (isObject) result=JSON.parse(JSON.stringify(sandbox.value));
 	else 
 	*/
-	result=sandbox;
+	result=sandbox.value;
 	
 	if (callback){
 		callback(null,result);
