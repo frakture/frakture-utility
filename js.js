@@ -287,15 +287,16 @@ exports.safeEval=function(script,context,callback){
 	}
 	delete sandbox.log;
 
+	//Make strings, etc local
+	result=exports.extend(true,{},sandbox.value);
 	
-	//I think there's a scoping issue here, so go to string and back.  safeEval shouldn't have to deal with non-json results.
-	//Unfortunately, this also clobbers any regular expressions  {email:/@/} gets clobbered here
-	//Removing right now, if example of scoping is found, change this appropriately
-	/*
-	if (isObject) result=JSON.parse(JSON.stringify(sandbox.value));
-	else 
-	*/
-	result=sandbox.value;
+	// RegExp are created in the other context, so they don't match "instanceof" in this context, which causes
+	// chain effects down the line in some libraries (like sift) not recognizing RegExp matches
+	for (i in result){
+		if (typeof result[i]=='object' && result[i].constructor.toString().indexOf("RegExp")>=0){
+			result[i]=new RegExp(result[i].source,result[i].flags);
+		}
+	}
 	
 	if (callback){
 		callback(null,result);
@@ -304,7 +305,13 @@ exports.safeEval=function(script,context,callback){
 	}
 }
 
-
+exports.testSafeEval=function(){
+	var s="{a:/foo/}";
+	var safe=exports.safeEval(s);
+	var ev=eval("("+s+")");
+	console.log("Safe:",safe,safe.a instanceof RegExp,safe.a.constructor,"foo".match(safe.a));
+	console.log("Unsafe:",ev,ev.a instanceof RegExp,ev.a.constructor,"foo".match(ev.a));
+}
 
 /*
 	
@@ -475,6 +482,7 @@ exports.matchesFilter=function (filter,data){
 		 	try{
 		   		filter=exports.safeEval(filter);
 		   	}catch(e){
+		   		console.error(e);
 		   		throw "Invalid filter:'"+filter+"'";
 		   	}
 		 }
@@ -486,7 +494,24 @@ exports.matchesFilter=function (filter,data){
 	else return false;
 }
 
-
+exports.testMatch=function(){
+	var data={ given_name: '',
+     family_name: '',
+     pbs_mvault_membership_id: '',
+     pbs_mvault_provisional: '',
+     pbs_mvault_start_date: '',
+     pbs_mvault_expire_date: '',
+     email: 'foo@bar.com',
+     pbs_mvault_offer: '',
+     amount: 60,
+     country: 'US',
+     remote_ip_address: '::ffff:10.69.198.55' };
+	 var filter={ country: 'US', amount: { '$gte': 60 }, email: /@/ };
+	 var stringfilter="{ country: 'US'}";
+	 console.error(data);
+	 console.error(exports.matchesFilter(filter,data));
+	 console.error(exports.matchesFilter(stringfilter,data));
+}
 
 exports.zeroPad=function(num, numZeros) {
 	var n = Math.abs(num);
