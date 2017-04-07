@@ -293,7 +293,7 @@ exports.safeEval=function(script,context,callback){
 	// RegExp are created in the other context, so they don't match "instanceof" in this context, which causes
 	// chain effects down the line in some libraries (like sift) not recognizing RegExp matches
 	for (i in result){
-		if (typeof result[i]=='object' && result[i].constructor.toString().indexOf("RegExp")>=0){
+		if (result[i] && typeof result[i]=='object' && result[i].constructor && result[i].constructor.toString().indexOf("RegExp")>=0){
 			result[i]=new RegExp(result[i].source,result[i].flags);
 		}
 	}
