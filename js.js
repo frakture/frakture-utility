@@ -349,7 +349,7 @@ exports.safeFunctionEval=function(functionString,input,callback){
 				
 				//Could be false -- bot's a valid response.  Just can't be undefined!!
 				if (data.output==undefined){
-					console.error("Error with function:"+functionString)
+					console.error("Error with function:",e)
 					console.error("Response value is:",data.output);
 					return callback("String function error -- no values were returned from the string function");
 				}
