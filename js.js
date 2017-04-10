@@ -287,8 +287,10 @@ exports.safeEval=function(script,context,callback){
 	}
 	delete sandbox.log;
 
+	console.error("Sandbox:",sandbox);
+	if (isObject) sandbox=sandbox.value;
 	//Make strings, etc local
-	result=exports.extend(true,{},sandbox.value);
+	result=exports.extend(true,{},sandbox);
 	
 	// RegExp are created in the other context, so they don't match "instanceof" in this context, which causes
 	// chain effects down the line in some libraries (like sift) not recognizing RegExp matches
@@ -338,23 +340,25 @@ exports.safeFunctionEval=function(functionString,input,callback){
 			
 			e+="var func="+f+"; var output=null; try{output=func(input);}catch(e){throw new Error(e);}";
 			
-			exports.safeEval(e,function(err,data){
+			exports.safeEval(e,function(err,sandbox){
 				if (err){
-					 debug("Error executing string function, with input:");
-					 debug(util.inspect(input));
-					 debug(f);
+					 console.error("Error executing string function, with input:");
+					 console.error(util.inspect(input));
+					 console.error(f);
 					 err.message="Bad options string function: "+err.message;
 					 return callback(err);
 				}
 				
 				//Could be false -- bot's a valid response.  Just can't be undefined!!
-				if (data.output==undefined){
+				if (sandbox.output==undefined){
 					console.error("Error with function:",e)
 					console.error("Response value is:",data.output);
 					return callback("String function error -- no values were returned from the string function");
 				}
-				debug("Completed string function, returning output with keys "+((typeof data.output=='object')?JSON.stringify(Object.keys(data.output)):data.output));
-				callback(null,data.output);
+
+				//console.error("Completed string function, returning output with keys "+((typeof sandbox.output=='object')?JSON.stringify(Object.keys(sandbox.output)):sandbox.output));
+				//console.error(sandbox.output);
+				callback(null,sandbox.output);
 			});
 		}else{
 			debug("No function, returning input");
