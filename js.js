@@ -679,6 +679,17 @@ exports.addArrayFindPrototype=function(){
 	Object.defineProperty(Array.prototype, "distinct", {value:function(){
 		return exports.getUnique(this);
 	},enumerable:false});
+	
+	//Chunk arrays into predefined sizes
+	//[1,2,3].chunk(2)=[[1,2],[3]]
+	Object.defineProperty(Array.prototype, 'chunk', {
+		value: function(chunkSize) {
+			var R = [];
+			for (var i=0; i<this.length; i+=chunkSize)
+				R.push(this.slice(i,i+chunkSize));
+			return R;
+		}
+	,enumerable:false});
 }
 
 
