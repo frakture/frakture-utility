@@ -848,12 +848,15 @@ exports.humanize=function(o,chars){
 	}
 }
 
+/*
+	zero should be okay
+*/
 exports.getIntArray=function(s,nonZeroLength){
 	var a=s || [];
 	if (typeof a=='number') a=[a];
 
 	if (typeof s=='string') a=s.split(",");
-	a= a.map(function(s){return parseInt(s)}).filter(function(s){return !!s});
+	a= a.filter(function(s){return (parseInt(s)==s)}).map(function(s){return parseInt(s)});
 	if (nonZeroLength && a.length==0) a=[0];
 	return a;
 }
