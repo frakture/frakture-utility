@@ -632,6 +632,31 @@ exports.relativeDate=function(s,initialDate){
 	}
 }
 
+exports.dateRange=function(options){
+	if (typeof options=='string') options={date_range:options};
+	var dates=[];
+	if (options.date_range){
+		var moment=require("moment-timezone");
+		var type=options.date_range.split(":");
+		var key=type[1] || "days";
+		
+		var d=type[0].split("~");
+		if (d.length!=2) return callback("date range should be start~end:day|week|month|year, such as '-3M~-now:month' ");
+		var start=exports.relativeDate(d[0]);
+		var end=exports.relativeDate(d[1]);
+		var current=start;
+		while(current<=end){
+			var day=moment(current).add(1,key).toDate();
+			dates.push({start:current,end:day});
+			current=day;
+		}
+	}else{
+		dates.push({start:options.start,end:options.end})
+	}
+	return dates;
+}
+
+
 
 var dateRegex=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
 function dateFunctionReviver(key, value) {
