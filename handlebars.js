@@ -14,6 +14,9 @@ handlebars.registerHelper("inc", function(value, options){
     return parseInt(value) + 1;
 });
 
+handlebars.registerHelper("encode",function( string ){return encodeURIComponent(string);});
+
+
 handlebars.registerHelper('date', function(d,format,options) {
 		console.error("d=",d,"format=",format,"options=",options);
 		

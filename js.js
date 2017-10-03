@@ -638,11 +638,11 @@ exports.dateRange=function(options){
 	if (options.date_range){
 		var moment=require("moment-timezone");
 		var type=options.date_range.split(":");
-		var key=type[1] || "days";
+		var key=type[1] || "day";
 		
 		var d=type[0].split("~");
-		if (d.length!=2) return callback("date range should be start~end:day|week|month|year, such as '-3M~-now:month' ");
-		var start=exports.relativeDate(d[0]);
+		if (d.length!=2) throw ("date range should be start~end:day|week|month|year, such as '-3M~-now:month' ");
+		var start=moment(exports.relativeDate(d[0])).startOf(key).toDate();
 		var end=exports.relativeDate(d[1]);
 		var current=start;
 		while(current<=end){
@@ -888,6 +888,7 @@ exports.getIntArray=function(s,nonZeroLength){
 
 exports.getStringArray=function(s,nonZeroLength){
 	var a=s || [];
+	if (typeof a=='number') a=String(a);
 	if (typeof a=='string') a=[a];
 
 	if (typeof s=='string') a=s.split(",");
