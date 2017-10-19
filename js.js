@@ -287,7 +287,6 @@ exports.safeEval=function(script,context,callback){
 	}
 	delete sandbox.log;
 
-	console.error("Sandbox:",sandbox);
 	if (isObject) sandbox=sandbox.value;
 	//Make strings, etc local
 	result=exports.extend(true,{},sandbox);
