@@ -251,8 +251,7 @@ exports.dereference=function(_objects,opts,callback){
 	
 		var q={_id:{$in:Object.keys(id_map[o]).map(function(d){
 			if (parseInt(d)==d) return parseInt(d);
-			if (typeof d=='string' && d.length==24) return exports.getObjectId(d);
-			return d;
+			return exports.getObjectId(d,true);
 		})}};
 		
 		//Makes sure to filter by account_id, so you can't create an arbitrary object_id and get data about it
