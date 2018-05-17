@@ -17,7 +17,7 @@ exports.timer=function(l){
 }
 
 //Format numbers, also accepts object of numbers
-exports.format=function(n,s){	
+exports.format=function(n,s){
 	if (typeof n!='object'){
 		//only format numbers
 		if(parseFloat(n)!=n) return n;
@@ -38,7 +38,7 @@ exports.reduceObject=function(a,b){
 		 o[i]=b[i];
 		 continue;
 		}
-		
+
 		if (typeof v=='number' && typeof o[i]=='number'){
 			o[i]=o[i]+v;
 			continue;
@@ -213,13 +213,13 @@ exports.extend=function() {
       }
       return target;
     }
-    
-    
-    
-/* 
+
+
+
+/*
 	extends two objects such that the result contains arrays of unique objects, or single values
 */
-function unique(value, index, self) { 
+function unique(value, index, self) {
     return self.indexOf(value) === index;
 }
 
@@ -238,33 +238,33 @@ exports.extendDistinct=function(a,b){
 
 /*
 	Safe eval takes either a string of operations to run on a sandbox, which is then returned.
-	
+
 	Alternatively, if passed an object (string that starts with '{') it will return the eval'd version of that string
-	
+
 	context is optional second attribute that is an object of context items.
-	
-	
+
+
 */
 exports.safeEval=function(script,context,callback){
 	if (typeof context!='object'){
 		callback=context;
 		context=null;
 	}
-	
+
 	if (!script){
 		if (!callback) throw "No content to eval";
 		return callback("No content to eval");
 	}
-	
+
 	var sandbox={log:console.log};
-	
+
 	if (context){
 		for (i in context) sandbox[i]=context[i];
 	}
 
 	script=require("strip-json-comments")(script.toString()).trim();
-	
-	
+
+
 	var isObject=false;
 	if (script.indexOf('{')==0){
 		isObject=true;
@@ -276,12 +276,12 @@ exports.safeEval=function(script,context,callback){
 	}catch(e){
 		//console.error("Error eval'ing "+script);
 		console.error(e);
-		
+
 		//The error SHOULD be of type error, but it's not.  Create a new error, and add the stack and message
 		var correctedError=new Error();
 		correctedError.stack=e.stack;
 		correctedError.message=e.message;
-		
+
 		if (!callback) throw correctedError;
 		return callback(correctedError);
 	}
@@ -290,7 +290,7 @@ exports.safeEval=function(script,context,callback){
 	if (isObject) sandbox=sandbox.value;
 	//Make strings, etc local
 	result=exports.extend(true,{},sandbox);
-	
+
 	// RegExp are created in the other context, so they don't match "instanceof" in this context, which causes
 	// chain effects down the line in some libraries (like sift) not recognizing RegExp matches
 	for (i in result){
@@ -298,7 +298,7 @@ exports.safeEval=function(script,context,callback){
 			result[i]=new RegExp(result[i].source,result[i].flags);
 		}
 	}
-	
+
 	if (callback){
 		callback(null,result);
 	}else{
@@ -315,11 +315,11 @@ exports.testSafeEval=function(){
 }
 
 /*
-	
+
 	Safely evaluate a function against an input object, returning null if there's no function specified, or the results of the function
-	
+
 */
-	
+
 exports.safeFunctionEval=function(functionString,input,callback){
 		//Process functions
 		var f=functionString;
@@ -329,16 +329,16 @@ exports.safeFunctionEval=function(functionString,input,callback){
 			//Stupid bson "CODE" type :(
 			f=functionString.code;
 		}
-		
+
 		if (functionString){
 			//Bug fix -- unicode line feeds do not get handled well -- replace with \r
 			var stringInput=JSON.stringify(input).replace(/\u2028/gm,"\\r");
-			
+
 			var e="var input="+stringInput+";";
 			//debug("Running options function with keys "+JSON.stringify(Object.keys(input)));
-			
+
 			e+="var func="+f+"; var output=null; try{output=func(input);}catch(e){throw new Error(e);}";
-			
+
 			exports.safeEval(e,function(err,sandbox){
 				if (err){
 					 console.error("Error executing string function, with input:");
@@ -347,11 +347,11 @@ exports.safeFunctionEval=function(functionString,input,callback){
 					 err.message="Bad options string function: "+err.message;
 					 return callback(err);
 				}
-				
+
 				//Could be false -- bot's a valid response.  Just can't be undefined!!
 				if (sandbox.output==undefined){
 					console.error("Error with function:",e)
-					console.error("Response value is:",data.output);
+					console.error("Response value is:",sandbox);
 					return callback("String function error -- no values were returned from the string function");
 				}
 
@@ -384,7 +384,7 @@ exports.parseRegExp=function(o,opts){
 					o[i]=exports.parseRegExp(o[i],i,counter);
 				}
 				return o;
-			
+
 			case 'string':
 				if (o.indexOf('/')==0 && o.lastIndexOf('/')>0){
 					var r=o.slice(1,o.lastIndexOf('/'));
@@ -395,7 +395,7 @@ exports.parseRegExp=function(o,opts){
 				}else{
 					return new RegExp(o,opts||"i");
 				}
-			
+
 			default:
 				return o;
 		}
@@ -431,7 +431,7 @@ exports.dezero = function(o,ignore) {
 		for (i in o){
 			if (o[i]===0 &&!Array.isArray(o)
 				&& ignore.indexOf(i)<0)  delete o[i];
-					
+
 			exports.dezero(o[i],ignore);
 		}
 	}
@@ -454,10 +454,10 @@ exports.truthify = function(o) {
 
 /*
 	Useful function for parsing yes/no/true/false values and strings.
-	* Returns true for "y"/"yes"/"Yes"/"true"/"t"/"True"/true/non-zero Number/Object	
+	* Returns true for "y"/"yes"/"Yes"/"true"/"t"/"True"/true/non-zero Number/Object
 	* Return default value for empty string, undefined, null (default value is 'false')
 	and false for everything else
-	
+
 */
 exports.bool=function (x,defaultVal){
 	if (defaultVal===undefined) defaultVal=false;
@@ -480,7 +480,7 @@ exports.lowerCaseObject=function(d){
 exports.matchesFilter=function (filter,data){
 	//if no filter, everything matches!
 	if (!filter || filter=="*") return true;
-	
+
 	data=data || {};
 	if (typeof filter=="string"){
 		try{
@@ -535,7 +535,7 @@ exports.zeroPad=function(num, numZeros) {
 /*
 	serializes a javascript object, including functions, and stringifies regular expressions.  Also includes protections for
 	stringifying endless loops
-	
+
 */
 
 
@@ -555,7 +555,7 @@ var cache = [];
       return (typeof value==='function' || value instanceof RegExp || (value && value.constructor && value.constructor.toString().indexOf('RegExp')>0))?value.toString():value
 	},4);
   cache = null; // Enable garbage collection
-  
+
   return s;
 }
 
@@ -582,13 +582,13 @@ exports.getUnique=function(arr){
 exports.relativeDate=function(s,initialDate){
 	if (!s || s=="none") return null;
 	if (typeof s.getMonth === 'function') return s;
-	
+
 	if (initialDate){
 		initialDate=new Date(initialDate);
 	}else{
 		initialDate=new Date();
 	}
-	
+
 	var r=s.match(/^([+-]{1})([0-9]+)([YyMwdhms]{1})([.a-z]*)$/);
 	var moment=require("moment-timezone");
 	if (r){
@@ -596,7 +596,7 @@ exports.relativeDate=function(s,initialDate){
 		switch(r[3]){
 			case "Y":
 			case "y": period="years"; break;
-			
+
 			case "M": period="months"; break;
 			case "w": period="weeks"; break;
 			case "d": period="days"; break;
@@ -604,9 +604,9 @@ exports.relativeDate=function(s,initialDate){
 			case "m": period="minutes"; break;
 			case "s": period="seconds"; break;
 		}
-		
+
 		var d=moment.utc(initialDate);
-		
+
 		if (r[1]=="+"){
 			 d=d.add(parseInt(r[2]),period)
 		}else{
@@ -619,7 +619,7 @@ exports.relativeDate=function(s,initialDate){
 			else if (opts[0]=="end") d=d.endOf(opts[1]||"day");
 			else throw "Invalid relative date,unknown options:"+r[4]
 		}
-		
+
 		return d.toDate();
 	}else if (s=="now"){
 		var r=moment.utc(new Date()).toDate();
@@ -632,13 +632,14 @@ exports.relativeDate=function(s,initialDate){
 }
 
 exports.dateRange=function(options){
+	debug("Date range is deprecated, over confusion over delimiters");
 	if (typeof options=='string') options={date_range:options};
 	var dates=[];
 	if (options.date_range){
 		var moment=require("moment-timezone");
 		var type=options.date_range.split(":");
 		var key=type[1] || "day";
-		
+
 		var d=type[0].split("~");
 		if (d.length!=2) throw ("date range should be start~end:day|week|month|year, such as '-3M~-now:month' ");
 		var start=moment(exports.relativeDate(d[0])).startOf(key).toDate();
@@ -684,7 +685,7 @@ exports.addArrayFindPrototype=function(){
 		return null;
 	},enumerable:false
 	});
-	
+
 	//Find the first index in the array that matches the query
 	Object.defineProperty(Array.prototype, "findIndex", {value:function(object){
 		var func=sift(object);
@@ -693,8 +694,8 @@ exports.addArrayFindPrototype=function(){
 		return -1;
 	},enumerable:false
 	});
-	
-	
+
+
 	Object.defineProperty(Array.prototype, "find", {value:function(object){
 		if (typeof object=='function') return this.filter(object)[0];
 		return sift(object,this);
@@ -703,7 +704,7 @@ exports.addArrayFindPrototype=function(){
 	Object.defineProperty(Array.prototype, "distinct", {value:function(){
 		return exports.getUnique(this);
 	},enumerable:false});
-	
+
 	//Chunk arrays into predefined sizes
 	//[1,2,3].chunk(2)=[[1,2],[3]]
 	Object.defineProperty(Array.prototype, 'chunk', {
@@ -743,7 +744,7 @@ exports.assign=function(obj, prop, value) {
 	});
 	from
 	http://stackoverflow.com/questions/11919065/sort-an-array-by-the-levenshtein-distance-with-best-performance-in-javascript
-	
+
 */
 exports.levDistance=function(s, t){
 		var d = []; //2d matrix
@@ -795,15 +796,15 @@ exports.levDistance=function(s, t){
 		// Step 7
 		return d[n][m];
 	}
-	
-	
+
+
 
 
 
 function abbrNum(number, decPlaces) {
 	if (!Number(number)) return 0;
 	if (number<1 && number>0){return Number(number).toFixed(1);}
-	
+
     // 2 decimal places => 100, 3 => 1000, etc
     decPlaces = Math.pow(10,decPlaces);
 
@@ -848,12 +849,12 @@ exports.humanize=function(o,chars){
 			return "[Function]";
 		case 'boolean':
 			return o;
-		case 'string': 
+		case 'string':
 		if (o.length>chars){return o.slice(0,chars)+"...";}
 		else return o;
 		case 'NaN': return "n/a";
 		case 'number': return abbrNum(o,1);
-		case 'object': 
+		case 'object':
 			var n={};
 			for (i in o){
 				if (i.slice(-3)!="_id"){
@@ -897,21 +898,21 @@ exports.getStringArray=function(s,nonZeroLength){
 }
 
 
-/* 
+/*
 	Microsoft date functions -- a number which is the count of days since some specific date.  Grr.
 */
 exports.msdate=function(n,ignoreTimezone){
 	 if (n==null || n==Infinity || n==undefined || n=="") return "";
-	 
+
 	 if (typeof n=='string') n=new Date(n);
-	 
+
 	var returnDateTime = null;
 	if (ignoreTimezone){
 		returnDateTime=25569.0 + ((n.getTime() - (n.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
 	}else{
 		returnDateTime=25569.0 + ((n.getTime()) / (1000 * 60 * 60 * 24));
 	}
-	
+
 	return returnDateTime.toString().substr(0,20);
 }
 
@@ -934,8 +935,8 @@ exports.base32 = require('encdec').create('abcdefghijklmnopqrstuvwxyz234567');
 //to handle longer strings, we can split numbers
 exports.base58toN=function(n,s){
 	var split=Math.floor(s.length/2);
-	var a=base58.decode(s.substring(0,split)).toString(n);
-	var b=base58.decode(s.substring(split)).toString(n);
+	var a=exports.base58.decode(s.substring(0,split)).toString(n);
+	var b=exports.base58.decode(s.substring(split)).toString(n);
 	return a+b;
 }
 
@@ -944,8 +945,8 @@ exports.baseNto58=function(n,s){
 	if (typeof s=='number') s=Number(s).toString();
 	if (typeof s!='string') s=s.toString();
 	var split=Math.floor(s.length/2);
-	var a=base58.encode(parseInt(s.substring(0,split),n));
-	var b=base58.encode(parseInt(s.substring(split),n));
+	var a=exports.base58.encode(parseInt(s.substring(0,split),n));
+	var b=exports.base58.encode(parseInt(s.substring(split),n));
 	return a+b;
 }
 

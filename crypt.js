@@ -40,12 +40,16 @@ exports.generateSalt=function(len) {
   return salt;
 }
 
-exports.md5=function(source) {
+exports.md5=function(source) {//32 characters
   return crypto.createHash('md5').update(source).digest('hex');
 }
 
-exports.sha1=function(source) {
+exports.sha1=function(source) {//40 characters
   return crypto.createHash('sha1').update(source).digest('hex');
+}
+
+exports.sha256=function(source) { //64 characters
+  return crypto.createHash('sha256').update(source).digest('hex');
 }
 
 
