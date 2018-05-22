@@ -1,5 +1,6 @@
 var vm = require('vm'),
-	util=require("util");
+	util=require("util")
+	debug=require("debug")("frakture-utility");
 
 /*
 	Useful js functions
