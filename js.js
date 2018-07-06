@@ -893,7 +893,7 @@ exports.getStringArray=function(s,nonZeroLength){
 	if (typeof a=='string') a=[a];
 
 	if (typeof s=='string') a=s.split(",");
-	a=a.map(s=>s.trim()).filter(Boolean);
+	a=a.map(s=>s.toString().trim()).filter(Boolean);
 	if (nonZeroLength && a.length==0) a=[0];
 	return a;
 }
