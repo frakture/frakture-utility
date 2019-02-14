@@ -464,6 +464,7 @@ exports.bool=function (x,defaultVal){
 	if (defaultVal===undefined) defaultVal=false;
 	if (x===undefined || x===null || x==="") return defaultVal;
 	if (typeof x!='string') return !!x;
+	if (x=="1") return true; //0 will return false, but "1" was returning false also
 	var y=x.toLowerCase();
 	return !!(y.indexOf('y')+1) || !!(y.indexOf('t')+1)
 }
