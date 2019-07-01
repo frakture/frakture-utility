@@ -449,6 +449,17 @@ exports.truthify = function(o) {
 	return o;
 };
 
+exports.definify = function(o) {
+	if (typeof o=='object'){
+		for (i in o){
+			if (o[i]===undefined)  delete o[i];
+			exports.definify(o[i]);
+		}
+	}
+	return o;
+};
+
+
 
 
 

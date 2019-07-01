@@ -1,0 +1,7 @@
+.env
+.my.cnf
+.ssh
+.frakture.json
+node_modules
+auth.json
+package-lock.json
