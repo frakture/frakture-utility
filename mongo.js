@@ -3,7 +3,7 @@ var db={
 	isInitialized:false
 };
 
-var 
+var
 	common_mongo=require("./mongo_common.js"),
 	mongodb=null,
 	js=require("./js.js"),
@@ -16,23 +16,31 @@ exports.init=function(callback){
 	if (!process.env.MONGO_URI){
 		return callback("MONGO_URI environment variable is required");
 	}
-	
+
 	if (db.isInitialized) return callback(null,db);
 	var uri=process.env.MONGO_URI;
-	
+
 	debug("Connecting to mongo db");
-	
+
 	if (!mongodb) mongodb=require('mongodb');
+	const Logger = require('mongodb').Logger;
+	if ((process.env.DEBUG||"").indexOf("mongo")>=0){
+		debug("Setting mongo logging on");
+		Logger.setLevel('info');
+	}else{
+		debug("Not setting mongo logging on");
+	}
 	mongodb.MongoClient.connect(uri,{auto_reconnect:true,maxPoolSize:10},function(err,d){
 		if (err){
 			return callback(err);
 		}
+
 		for (i in d){
 			db[i]=d[i];
 		}
 		db.isInitialized=true;
 		debug("Completed connecting to Mongo DB");
-		
+
 		callback(null,d);
 	});
 }
@@ -57,7 +65,7 @@ exports.getObjectID=function(v,allowStrings){
 		console.error("MongoError parsing value ",v,e);
 		throw e;
 		//return v;
-		
+
 	}
 }
 
@@ -85,7 +93,7 @@ exports.convertDate=function(o){
 	for (i in o){
 		if (!o[i]){
 		}else if (typeof o[i]=='object' && o[i]["$date"]){ o[i]=new Date(o[i]["$date"]);
-		}else{ 
+		}else{
 			o[i]=exports.convertDate(o[i]);
 		}
 	}
@@ -108,7 +116,7 @@ exports.escapeMongo=function(d){
 exports.safeSet=function(update){
 	var s=js.extend({},update);
 	delete s._id;
-	
+
 	for (i in s){
 		if (!Array.isArray(s[i]) && !(Object.prototype.toString.call(s[i]) === '[object Date]') && typeof s[i]=='object'){
 			for (j in s[i]){
@@ -118,7 +126,7 @@ exports.safeSet=function(update){
 		}
 	}
 	//replace all dollar signs in keys
-	
+
 	return {$set:s};
 }
 
@@ -126,12 +134,12 @@ exports.safeSet=function(update){
 exports.insertIncrementalDocument=function(doc,targetCollection,callback,killCounter){
 	if (doc._id) return callback("document already has an _id:"+doc._id+", cannot insert");
 	if (typeof targetCollection=='string') targetCollection=db.collection(targetCollection);
-	
+
 	var name= targetCollection.collectionName;
    var ret = db.collection("counters").findAndModify({ _id:name },{},{ $inc: { seq: 1 } },{new: true,upsert:true}
 	   ,function(err,d){
 			if (err) return callback(err);
-			
+
 			//I think this is a driver bug, that sometimes returns back the full mongo response, not just the document
 			if (d.lastErrorObject){
 		   		d=d.value;
@@ -155,7 +163,7 @@ exports.insertIncrementalDocument=function(doc,targetCollection,callback,killCou
 				});
 				return;
 			}
-			
+
 			doc._id=d.seq;
 			if (d.encoding=="base32") doc._id=js.base32.encode(d.seq);
 			debug("New _id="+doc._id);
@@ -174,7 +182,7 @@ exports.trimLeaves=function(options,callback){
 	var target=db.collection(options.target);
 	var field=options.field;
 	if (!field) return callback("field is required");
-	
+
 	var last=0;
 	var counter=0;
 	var fields={_id:1};
@@ -183,23 +191,23 @@ exports.trimLeaves=function(options,callback){
 		var q={};
 		if (last) q={_id:{$gt:last}};
 		q[field]={$exists:true}
-		
+
 		source.find(q,fields).sort({_id:1}).limit(1000).toArray(function(e,arr){
 			if (e) return cb(e);
 			if (arr.length==0){last=null; return cb();}
-			
+
 			last=arr[arr.length-1]._id;
-			
+
 			var ids=arr.map(function(d){return d[field]});
 			target.find({_id:{$in:ids}},{_id:1}).toArray(function(e,targets){
 				var existingTargets=targets.map(function(d){return d._id});
 				var missing=arr.filter(function(d){return (existingTargets.indexOf(d[field])>=0)?false:true}).map(function(d){return d._id});
-				
+
 				if (missing.length==0) return cb();
 				counter+=missing.length;
 				var unset={$unset:{}};
 				unset.$unset[field]=1;
-				
+
 				if (js.bool(options.remove)){
 					source.remove({_id:{$in:missing}},cb);
 				}else{
@@ -216,11 +224,11 @@ exports.trimLeaves=function(options,callback){
 }
 
 /*
-	Take an object or array of objects, generally from a query, goes through each one, looks for any <object>_id field, 
+	Take an object or array of objects, generally from a query, goes through each one, looks for any <object>_id field,
 	//assumes it needs to be dereferenced, and
 	// appends an object of name <object>
 	Also supports account_id confirmation by default, if the first object has an account_id
-	
+
 	opts:{
 		no_account_id:default false
 	}
@@ -230,10 +238,10 @@ exports.dereference=function(_objects,opts,callback){
 	if (!_objects) return callback(null,null);
 	opts=opts||{};
 	if (typeof opts=='function'){ callback=opts; opts={};};
-	
+
 	var objects=_objects;
 	if (!Array.isArray(_objects)) objects=[_objects];
-	
+
 	var account_id=(objects[0]||{}).account_id;
 	var id_map={};
 	objects.forEach(function(object){
@@ -248,19 +256,19 @@ exports.dereference=function(_objects,opts,callback){
 	});
 	db=exports.getDB();
 	async.eachSeries(Object.keys(id_map),function(o,oCallback){
-	
+
 		var q={_id:{$in:Object.keys(id_map[o]).map(function(d){
 			if (parseInt(d)==d) return parseInt(d);
 			return exports.getObjectId(d,true);
 		})}};
-		
+
 		//Makes sure to filter by account_id, so you can't create an arbitrary object_id and get data about it
 		if (account_id && !opts.no_account_id){
 			if (o=='account'){}else{
 			  q.account_id=account_id;
 			}
 		}
-		
+
 		db.collection(o).find(q).toArray(function(err,objects){
 			if (err) return oCallback(err);
 			objects.forEach(function(obj){
