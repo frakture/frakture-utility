@@ -24,7 +24,7 @@ exports.init=function(callback){
 
 	if (!mongodb) mongodb=require('mongodb');
 	const Logger = require('mongodb').Logger;
-	if ((process.env.DEBUG||"").indexOf("mongo")>=0){
+	if ((process.env.DEBUG||"").split(",").indexOf("mongo")>=0){
 		debug("Setting mongo logging on");
 		Logger.setLevel('info');
 	}else{
