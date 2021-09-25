@@ -9,7 +9,7 @@ exports.encrypt=function(text){
 	if (!process.env.CRYPT_KEY) throw "A CRYPT_KEY environment variable is required";
 	if (typeof text!='string') throw "Only strings may be encrypted.  Try JSON.stringify";
 	try{
-		var cipher = crypto.createCipher(algorithm, process.env.CRYPT_KEY);  
+		var cipher = crypto.createCipher(algorithm, process.env.CRYPT_KEY);
 		var encrypted = cipher.update(text, 'utf8', 'hex') + cipher.final('hex');
 		return encrypted;
 	}catch(e){
@@ -28,6 +28,21 @@ exports.decrypt=function(encrypted){
 	}
 	return decrypted;
 }
+
+/* Not currently working with old encryptions
+const IV_LENGTH = 16;
+exports.decrypt2=function(encrypted){
+	if (!process.env.CRYPT_KEY) throw "A CRYPT_KEY environment variable is required";
+  let iv = Buffer.from(encrypted, 'hex');
+  let decipher = crypto.createDecipheriv(algorithm, process.env.CRYPT_KEY, iv);
+	let encryptedBinary = Buffer.from(encrypted, 'hex');
+  let decrypted = decipher.update(encryptedBinary);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
+}
+*/
+
+
 
 exports.generateSalt=function(len) {
   var set = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ',
@@ -51,5 +66,3 @@ exports.sha1=function(source) {//40 characters
 exports.sha256=function(source) { //64 characters
   return crypto.createHash('sha256').update(source).digest('hex');
 }
-
-

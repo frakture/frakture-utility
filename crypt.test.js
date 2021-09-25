@@ -1,0 +1,12 @@
+var crypt=require("./crypt.js");
+let env=require("./.frakture.json");
+Object.assign(process.env,env.env);
+let input="foobar";
+let encrypt=crypt.encrypt(input);
+console.log("Encrypted=",encrypt);
+let output=crypt.decrypt(encrypt);
+if (output!=input) throw new Error("decrypt failed, "+JSON.stringify({input,output}));
+console.log("Old crypt works");
+let output2=crypt.decrypt2(encrypt);
+if (output2!=input) throw new Error("decrypt2 failed");
+console.log("Completed successfully");
