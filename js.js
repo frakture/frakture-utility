@@ -382,7 +382,8 @@ exports.parseRegExp=function(o,opts){
 		switch(typeof o){
 			case 'object':
 				for (i in o){
-					o[i]=exports.parseRegExp(o[i],i,counter);
+					let v=exports.parseRegExp(o[i],opts);
+					o[i]=v;
 				}
 				return o;
 
@@ -401,6 +402,7 @@ exports.parseRegExp=function(o,opts){
 				return o;
 		}
 	}catch(e){
+		console.error(e);
 		return o;
 	}
 }
