@@ -936,7 +936,10 @@ exports.fromMSDate=function(date){
 }
 
 
-
+exports.toCharCodes=function(x){
+	if (!x) return [];
+	return Array.from(x).filter(Boolean).map((d)=>d.charCodeAt(0));
+};
 
 
 
