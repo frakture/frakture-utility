@@ -938,7 +938,7 @@ exports.fromMSDate=function(date){
 
 exports.toCharCodes=function(x){
 	if (!x) return [];
-	return Array.from(x).filter(Boolean).map((d)=>d.charCodeAt(0));
+	return Array.from(x).filter(Boolean).map((d)=>(`\\u`+d.charCodeAt(0).toString(16)));
 };
 
 
