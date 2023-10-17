@@ -41,6 +41,7 @@ exports.init=function(callback){
 		}
 
 		for (i in d){
+			console.log("Assigning"+i);
 			db[i]=d[i];
 		}
 		db.isInitialized=true;
