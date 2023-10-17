@@ -30,7 +30,12 @@ exports.init=function(callback){
 	}else{
 		debug("Not setting mongo logging on");
 	}
-	mongodb.MongoClient.connect(uri,{auto_reconnect:true,maxPoolSize:10},function(err,d){
+	let opts={auto_reconnect:true,maxPoolSize:10};
+		if (process.env.MONGO_SSL_CERT_BUNDLE){
+			opts.tls=true;
+			opts.tlsCAFile=process.env.MONGO_SSL_CERT_BUNDLE;
+		}
+	mongodb.MongoClient.connect(uri,opts,function(err,d){
 		if (err){
 			return callback(err);
 		}
