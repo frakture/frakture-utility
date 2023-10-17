@@ -52,7 +52,7 @@ exports.init=function(callback){
 		db.isInitialized=true;
 		debug("Completed connecting to Mongo DB");
 
-		callback(null,_db);
+		callback(null,db);
 	});
 }
 
