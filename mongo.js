@@ -35,7 +35,7 @@ exports.init=function(callback){
         reconnectTries: 60,
         // wait 1 second before retrying
         reconnectInterval: 1000,
-		maxPoolSize:10
+		maxPoolSize:200
 	};
 		if (process.env.MONGO_SSL_CERT_BUNDLE){
 			opts.tls=true;
