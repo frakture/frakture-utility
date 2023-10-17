@@ -30,7 +30,7 @@ exports.init=function(callback){
 	}else{
 		debug("Not setting mongo logging on");
 	}
-	let opts={auto_reconnect:true,maxPoolSize:10};
+	let opts={maxPoolSize:10};
 		if (process.env.MONGO_SSL_CERT_BUNDLE){
 			opts.tls=true;
 			opts.tlsCAFile=process.env.MONGO_SSL_CERT_BUNDLE;
