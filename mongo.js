@@ -35,19 +35,18 @@ exports.init=function(callback){
 			opts.tls=true;
 			opts.tlsCAFile=process.env.MONGO_SSL_CERT_BUNDLE;
 		}
-	mongodb.MongoClient.connect(uri,opts,function(err,d){
+	let client=mongodb.MongoClient(uri,opts);
+		
+	client.connect(function(err){
 		if (err){
 			return callback(err);
 		}
-
-		for (i in d){
-			console.log("Assigning"+i);
-			db[i]=d[i];
-		}
+		db=client.db(uri.split("/").pop());
+		
 		db.isInitialized=true;
 		debug("Completed connecting to Mongo DB");
 
-		callback(null,d);
+		callback(null,db);
 	});
 }
 
