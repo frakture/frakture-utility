@@ -13,7 +13,7 @@ exports.encrypt=function(text){
 		var encrypted = cipher.update(text, 'utf8', 'hex') + cipher.final('hex');
 		return encrypted;
 	}catch(e){
-		throw "Error encrypting";
+		throw e;
 	}
 }
 
@@ -24,7 +24,8 @@ exports.decrypt=function(encrypted){
 		var decipher = crypto.createDecipher(algorithm, process.env.CRYPT_KEY);
 		decrypted = decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8');
 	}catch(e){
-		throw "Invalid encrypted string";
+		throw e;
+		//new Error("Invalid encrypted string");
 	}
 	return decrypted;
 }
