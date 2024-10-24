@@ -18,7 +18,7 @@ handlebars.registerHelper("encode",function( string ){return encodeURIComponent(
 
 
 handlebars.registerHelper('date', function(d,format,options) {
-		console.error("d=",d,"format=",format,"options=",options);
+		//console.error("d=",d,"format=",format,"options=",options);
 		
 		if (!d) return "";
 		if (typeof d!='string') throw "Not a string:"+typeof d+" : "+JSON.stringify(d);
