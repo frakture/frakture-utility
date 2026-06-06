@@ -31,6 +31,7 @@ exports.init=function(callback){
 		debug("Not setting mongo logging on");
 	}
 	let opts={
+		useUnifiedTopology: true,
 		// retry to connect for 60 times
         reconnectTries: 60,
         // wait 1 second before retrying
