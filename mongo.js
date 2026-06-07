@@ -32,6 +32,7 @@ exports.init=function(callback){
 	}
 	let opts={
 		useUnifiedTopology: true,
+		retryWrites: false,
 		// retry to connect for 60 times
         reconnectTries: 60,
         // wait 1 second before retrying
