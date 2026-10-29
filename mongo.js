@@ -54,7 +54,14 @@ exports.init=function(callback){
 		db.isInitialized=true;
 		debug("Completed connecting to Mongo DB");
 
-		callback(null,db);
+		/*
+			Call back off the driver's stack. mongodb 3.x invokes this connect
+			callback from inside its topology/monitor code, which swallows any
+			exception thrown by our callback: no stack trace, no exit, and a
+			server that never listens. setImmediate makes such an exception a
+			normal uncaught exception again (stack trace, non-zero exit).
+		*/
+		setImmediate(callback,null,db);
 	});
 }
 
