@@ -9,6 +9,7 @@ module.exports={
 	date:require("./date.js"),
 	html:require("./html.js"),
 	stream:require("./stream.js"),
+	flowParameters:require("./flowParameters.js"),
 	validator:function(){return require("validator")},
 	handlebars:function(){return require("./handlebars.js")},
 	mysql:function(){return require("./mysql.js")},
